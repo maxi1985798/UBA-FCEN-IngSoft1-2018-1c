@@ -13,26 +13,28 @@ TestCase subclass: #IdiomTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!IdiomTest methodsFor: 'testing' stamp: 'AM 4/12/2018 20:49:03'!
-test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
+!IdiomTest methodsFor: 'testing' stamp: 'AM 4/12/2018 21:09:43'!
+setUp
 
-	| duration |
-	
-	duration := [customerBook addCustomerNamed: 'John Lennon'] timeToRun.
-	
-	self assert: duration < 50 
+	customerBook := CustomerBook  new.
+	customerBookWithPaulMcCartney := CustomerBook  new.
+	customerBookWithPaulMcCartney addCustomerNamed:  'Paul McCartney'.
+	customerBookWithJohnLennon  := CustomerBook  new.
+	customerBookWithJohnLennon addCustomerNamed:  'John Lennon'.! !
+
+!IdiomTest methodsFor: 'testing' stamp: 'AM 4/12/2018 21:30:03'!
+test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
+	self this:[customerBook addCustomerNamed: 'John Lennon'] shouldNotTakeMoreThan: 50
 	! !
 
-!IdiomTest methodsFor: 'testing' stamp: 'AM 4/12/2018 21:10:45'!
+!IdiomTest methodsFor: 'testing' stamp: 'AM 4/12/2018 21:34:11'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| paulMcCartney duration |
+	| paulMcCartney |
 	
 	paulMcCartney := 'Paul McCartney'.
 
-	duration := [customerBookWithPaulMcCartney removeCustomerNamed: paulMcCartney] timeToRun.
-	
-	self assert: duration < 100 
+	self this:[customerBookWithPaulMcCartney removeCustomerNamed: paulMcCartney] shouldNotTakeMoreThan: 100.
 	
 ! !
 
@@ -60,16 +62,11 @@ test04CanNotRemoveAnInvalidCustomer
 			self assert: (customerBookWithJohnLennon includesCustomerNamed: johnLennon) ]! !
 
 
-!IdiomTest methodsFor: 'as yet unclassified' stamp: 'AM 4/12/2018 21:09:43'!
-setUp
+!IdiomTest methodsFor: 'extentions' stamp: 'AM 4/12/2018 21:32:54'!
+this: aBlockClosure shouldNotTakeMoreThan: milliseconds 
+	self assert: aBlockClosure timeToRun < milliseconds.! !
 
-	customerBook := CustomerBook  new.
-	customerBookWithPaulMcCartney := CustomerBook  new.
-	customerBookWithPaulMcCartney addCustomerNamed:  'Paul McCartney'.
-	customerBookWithJohnLennon  := CustomerBook  new.
-	customerBookWithJohnLennon addCustomerNamed:  'John Lennon'.! !
-
-!IdiomTest methodsFor: 'as yet unclassified' stamp: 'AM 4/12/2018 20:59:36'!
+!IdiomTest methodsFor: 'extentions' stamp: 'AM 4/12/2018 20:59:36'!
 this:aBlockClosure shouldRaise:anError andTest:anotherBlockClosure
 
 [ aBlockClosure value.
