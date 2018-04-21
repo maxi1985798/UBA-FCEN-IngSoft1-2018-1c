@@ -358,19 +358,60 @@ multiplyByAnInteger: anInteger
 	
 	^self class with: value * anInteger integerValue! !
 
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'a 4/21/2018 20:10:47'!
+createAFractionWithNumerator: anEnteroNoCero 
+	self subclassResponsibility.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: #'Numero-Exercise'!
 Entero class
 	instanceVariableNames: ''!
 
-!Entero class methodsFor: 'instance creation' stamp: 'HernanWilkinson 5/7/2016 22:53'!
+!Entero class methodsFor: 'instance creation' stamp: 'a 4/21/2018 20:00:20'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
+	aValue isZero
+		ifTrue: [^EnteroCero new initalizeWith: aValue ]
+		ifFalse: [^EnteroNoCero new initalizeWith: aValue ].
+	"^self new initalizeWith: aValue"! !
+
+
+!classDefinition: #EnteroCero category: #'Numero-Exercise'!
+Entero subclass: #EnteroCero
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numero-Exercise'!
+
+!EnteroCero methodsFor: 'as yet unclassified' stamp: 'am 4/21/2018 20:34:31'!
+createAFractionWithNumerator: aDividend
+	self class canNotDivideByZeroErrorDescription.! !
+
+
+!classDefinition: #EnteroNoCero category: #'Numero-Exercise'!
+Entero subclass: #EnteroNoCero
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numero-Exercise'!
+
+!EnteroNoCero methodsFor: 'as yet unclassified' stamp: 'a 4/21/2018 20:12:19'!
+createAFractionWithNumerator: aDividend
+	| greatestCommonDivisor numerator denominator |
+
+	aDividend isZero ifTrue: [ ^aDividend ].
 	
-	^self new initalizeWith: aValue! !
+	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
+	numerator := aDividend // greatestCommonDivisor.
+	denominator := self // greatestCommonDivisor.
+	
+	denominator isOne ifTrue: [ ^numerator ].
+
+	^Fraccion new initializeWith: numerator over: denominator.! !
 
 
 !classDefinition: #Fraccion category: #'Numero-Exercise'!
@@ -475,19 +516,7 @@ numerator
 Fraccion class
 	instanceVariableNames: ''!
 
-!Fraccion class methodsFor: 'intance creation' stamp: 'HernanWilkinson 5/7/2016 20:41'!
-with: aDividend over: aDivisor
-
-	| greatestCommonDivisor numerator denominator |
-	
-	aDivisor isZero ifTrue: [ self error: self canNotDivideByZeroErrorDescription ].
-	aDividend isZero ifTrue: [ ^aDividend ].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: aDivisor. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := aDivisor // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
-
-	^self new initializeWith: numerator over: denominator
+!Fraccion class methodsFor: 'intance creation' stamp: 'am 4/21/2018 20:25:59'!
+with: aDividend over: aDivisor
+	^aDivisor createAFractionWithNumerator: aDividend.
 	! !
