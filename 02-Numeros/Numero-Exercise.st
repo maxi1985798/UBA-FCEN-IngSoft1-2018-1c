@@ -359,7 +359,7 @@ multiplyByAnInteger: anInteger
 	^self class with: value * anInteger integerValue! !
 
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'a 4/21/2018 20:10:47'!
+!Entero methodsFor: 'private' stamp: 'a 4/21/2018 20:10:47'!
 createAFractionWithNumerator: anEnteroNoCero 
 	self subclassResponsibility.! !
 
@@ -369,15 +369,21 @@ createAFractionWithNumerator: anEnteroNoCero
 Entero class
 	instanceVariableNames: ''!
 
-!Entero class methodsFor: 'instance creation' stamp: 'a 4/21/2018 20:00:20'!
+!Entero class methodsFor: 'instance creation' stamp: 'm 4/21/2018 21:10:46'!
 with: aValue 
-	
+		|c|
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
-	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
+	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].	
+	
 	aValue isZero
-		ifTrue: [^EnteroCero new initalizeWith: aValue ]
-		ifFalse: [^EnteroNoCero new initalizeWith: aValue ].
-	"^self new initalizeWith: aValue"! !
+		ifTrue: [c := EnteroCero]
+		ifFalse: [
+			aValue = 1 
+				ifTrue:[c := EnteroUno ]
+				ifFalse:[c := EnteroNiCeroNiUno ]
+				].
+			
+	^c new initalizeWith: aValue.! !
 
 
 !classDefinition: #EnteroCero category: #'Numero-Exercise'!
@@ -387,9 +393,15 @@ Entero subclass: #EnteroCero
 	poolDictionaries: ''
 	category: 'Numero-Exercise'!
 
-!EnteroCero methodsFor: 'as yet unclassified' stamp: 'am 4/21/2018 20:34:31'!
+!EnteroCero methodsFor: 'private' stamp: 'm 4/21/2018 20:55:15'!
+createAFractionWithANonZeroDenominator: denominator
+
+	^self
+	! !
+
+!EnteroCero methodsFor: 'private' stamp: 'm 4/21/2018 20:48:14'!
 createAFractionWithNumerator: aDividend
-	self class canNotDivideByZeroErrorDescription.! !
+	self error: self class canNotDivideByZeroErrorDescription.! !
 
 
 !classDefinition: #EnteroNoCero category: #'Numero-Exercise'!
@@ -399,19 +411,68 @@ Entero subclass: #EnteroNoCero
 	poolDictionaries: ''
 	category: 'Numero-Exercise'!
 
-!EnteroNoCero methodsFor: 'as yet unclassified' stamp: 'a 4/21/2018 20:12:19'!
+!EnteroNoCero methodsFor: 'private' stamp: 'm 4/21/2018 21:12:20'!
+createAFractionWithANonZeroDenominator: aDenominator
+	self subclassResponsibility .! !
+
+!EnteroNoCero methodsFor: 'private' stamp: 'm 4/21/2018 21:39:51'!
+createAFractionWithCoprimeAndNonZeroAndNonOneNumerator: aNumerator
+	self subclassResponsibility.! !
+
+!EnteroNoCero methodsFor: 'private' stamp: 'm 4/21/2018 20:57:51'!
 createAFractionWithNumerator: aDividend
+
+	^aDividend createAFractionWithANonZeroDenominator: self! !
+
+!EnteroNoCero methodsFor: 'private' stamp: 'm 4/21/2018 21:21:15'!
+createAFractionWithNumeratorOne
+	self subclassResponsibility.! !
+
+
+!classDefinition: #EnteroNiCeroNiUno category: #'Numero-Exercise'!
+EnteroNoCero subclass: #EnteroNiCeroNiUno
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numero-Exercise'!
+
+!EnteroNiCeroNiUno methodsFor: 'private' stamp: 'm 4/21/2018 21:39:51'!
+createAFractionWithANonZeroDenominator: aDenominator
 	| greatestCommonDivisor numerator denominator |
+	greatestCommonDivisor _ self greatestCommonDivisorWith: aDenominator.
+	numerator _ self // greatestCommonDivisor.
+	denominator _ aDenominator // greatestCommonDivisor.
+	^ denominator createAFractionWithCoprimeAndNonZeroAndNonOneNumerator: numerator.! !
 
-	aDividend isZero ifTrue: [ ^aDividend ].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := self // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
+!EnteroNiCeroNiUno methodsFor: 'private' stamp: 'm 4/21/2018 21:39:51'!
+createAFractionWithCoprimeAndNonZeroAndNonOneNumerator: aNumerator
+	^ Fraccion new
+		initializeWith: aNumerator
+		over: self.! !
 
-	^Fraccion new initializeWith: numerator over: denominator.! !
+!EnteroNiCeroNiUno methodsFor: 'private' stamp: 'm 4/21/2018 21:23:02'!
+createAFractionWithNumeratorOne
+	^Fraccion new initializeWith: (Entero with: 1) over: self.! !
+
+
+!classDefinition: #EnteroUno category: #'Numero-Exercise'!
+EnteroNoCero subclass: #EnteroUno
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numero-Exercise'!
+
+!EnteroUno methodsFor: 'private' stamp: 'm 4/21/2018 21:42:21'!
+createAFractionWithANonZeroDenominator: aDenominator
+	^aDenominator createAFractionWithNumeratorOne.! !
+
+!EnteroUno methodsFor: 'private' stamp: 'm 4/21/2018 21:39:51'!
+createAFractionWithCoprimeAndNonZeroAndNonOneNumerator: aNumerator
+	^ aNumerator.! !
+
+!EnteroUno methodsFor: 'private' stamp: 'm 4/21/2018 21:23:18'!
+createAFractionWithNumeratorOne
+	^self! !
 
 
 !classDefinition: #Fraccion category: #'Numero-Exercise'!
@@ -432,13 +493,8 @@ isZero
 	^false! !
 
 
-!Fraccion methodsFor: 'initialization' stamp: 'HernanWilkinson 5/7/2016 22:54'!
+!Fraccion methodsFor: 'initialization' stamp: 'm 4/21/2018 21:43:58'!
 initializeWith: aNumerator over: aDenominator
-
-	"Estas precondiciones estan por si se comenten errores en la implementacion - Hernan"
-	aNumerator isZero ifTrue: [ self error: 'una fraccion no puede ser cero' ].
-	aDenominator isOne ifTrue: [ self error: 'una fraccion no puede tener denominador 1 porque sino es un entero' ].
-	
 	numerator := aNumerator.
 	denominator := aDenominator ! !
 
