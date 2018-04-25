@@ -139,10 +139,43 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #OOStack category: #'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: ''
+	instanceVariableNames: 'firstStackElement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+pop
+	| e |
+	e _ firstStackElement getElement.
+	firstStackElement _ firstStackElement nextContainer.
+	^ e.! !
+
+!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+push: anObject
+	| e |
+	e _ StackContainer
+		newWith: anObject
+		andOn: firstStackElement.
+	firstStackElement _ e.! !
+
+!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+size
+	^ firstStackElement numberInTheStack.! !
+
+!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+top
+	^ firstStackElement getElement.! !
+
+
+!OOStack methodsFor: 'testing' stamp: 'm 4/25/2018 01:06:58'!
+isEmpty
+	^ firstStackElement isStackBottom.! !
+
+
+!OOStack methodsFor: 'initialization' stamp: 'm 4/25/2018 01:06:58'!
+initialize
+	firstStackElement _ StackBottom new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -154,3 +187,86 @@ OOStack class
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
+
+
+!classDefinition: #StackElement category: #'Stack-Exercise'!
+Object subclass: #StackElement
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!StackElement methodsFor: 'accessing' stamp: 'm 4/25/2018 01:08:48'!
+getElement
+	self shouldBeImplemented.! !
+
+!StackElement methodsFor: 'accessing' stamp: 'm 4/25/2018 01:09:51'!
+numberInTheStack
+	self shouldBeImplemented.! !
+
+
+!StackElement methodsFor: 'testing' stamp: 'm 4/25/2018 01:09:27'!
+isStackBottom
+	self shouldBeImplemented.! !
+
+
+!classDefinition: #StackBottom category: #'Stack-Exercise'!
+StackElement subclass: #StackBottom
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!StackBottom methodsFor: 'testing' stamp: 'm 4/25/2018 00:23:42'!
+isStackBottom
+	^ true.! !
+
+
+!StackBottom methodsFor: 'accessing' stamp: 'm 4/25/2018 01:05:27'!
+getElement
+	self error: OOStack stackEmptyErrorDescription.! !
+
+!StackBottom methodsFor: 'accessing' stamp: 'm 4/25/2018 01:02:24'!
+numberInTheStack
+	^ 0.! !
+
+
+!classDefinition: #StackContainer category: #'Stack-Exercise'!
+StackElement subclass: #StackContainer
+	instanceVariableNames: 'element onStackContainer'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!StackContainer methodsFor: 'intialization' stamp: 'm 4/25/2018 00:33:07'!
+initializeWith: anObject andOn: anElementContainer
+	element _ anObject.
+	onStackContainer _ anElementContainer.! !
+
+
+!StackContainer methodsFor: 'testing' stamp: 'm 4/25/2018 00:23:42'!
+isStackBottom
+	^ false.! !
+
+
+!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 00:29:39'!
+getElement
+	^element.! !
+
+!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 00:33:07'!
+nextContainer
+	^ onStackContainer.! !
+
+!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 01:02:24'!
+numberInTheStack
+	^ 1 + onStackContainer numberInTheStack.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'StackContainer class' category: #'Stack-Exercise'!
+StackContainer class
+	instanceVariableNames: ''!
+
+!StackContainer class methodsFor: 'as yet unclassified' stamp: 'm 4/25/2018 00:19:29'!
+newWith: anObject andOn: anStackContainer
+	^self new initializeWith: anObject andOn: anStackContainer.! !
