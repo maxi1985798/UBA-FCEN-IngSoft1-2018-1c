@@ -137,45 +137,130 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 ! !
 
 
-!classDefinition: #OOStack category: #'Stack-Exercise'!
-Object subclass: #OOStack
-	instanceVariableNames: 'firstStackElement'
+!classDefinition: #HanoiTower category: #'Stack-Exercise'!
+Object subclass: #HanoiTower
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+!HanoiTower methodsFor: 'accessing' stamp: 'am 4/25/2018 23:32:40'!
+numberOfDisks
+	self subclassResponsibility.! !
+
+!HanoiTower methodsFor: 'accessing' stamp: 'am 4/25/2018 23:25:26'!
+topDisk
+	self subclassResponsibility.! !
+
+
+!HanoiTower methodsFor: 'testing' stamp: 'am 4/25/2018 23:29:09'!
+isEmpty
+	self subclassResponsibility.! !
+
+
+!classDefinition: #EmptyRod category: #'Stack-Exercise'!
+HanoiTower subclass: #EmptyRod
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!EmptyRod methodsFor: 'testing' stamp: 'am 4/25/2018 23:29:08'!
+isEmpty
+	^ true.! !
+
+
+!EmptyRod methodsFor: 'accessing' stamp: 'am 4/25/2018 23:32:40'!
+numberOfDisks
+	^ 0.! !
+
+!EmptyRod methodsFor: 'accessing' stamp: 'am 4/25/2018 23:25:26'!
+topDisk
+	self error: OOStack stackEmptyErrorDescription.! !
+
+
+!classDefinition: #RodWithDisks category: #'Stack-Exercise'!
+HanoiTower subclass: #RodWithDisks
+	instanceVariableNames: 'element tower'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!RodWithDisks methodsFor: 'intialization' stamp: 'am 4/25/2018 23:48:44'!
+initializeWith: anObject on: anElementContainer
+	element _ anObject.
+	tower _ anElementContainer.! !
+
+
+!RodWithDisks methodsFor: 'testing' stamp: 'am 4/25/2018 23:29:09'!
+isEmpty
+	^ false.! !
+
+
+!RodWithDisks methodsFor: 'accessing' stamp: 'am 4/25/2018 23:48:44'!
+laterTower
+	^ tower.! !
+
+!RodWithDisks methodsFor: 'accessing' stamp: 'am 4/25/2018 23:48:44'!
+numberOfDisks
+	^ 1 + tower numberOfDisks.! !
+
+!RodWithDisks methodsFor: 'accessing' stamp: 'am 4/25/2018 23:25:26'!
+topDisk
+	^ element.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'RodWithDisks class' category: #'Stack-Exercise'!
+RodWithDisks class
+	instanceVariableNames: ''!
+
+!RodWithDisks class methodsFor: 'as yet unclassified' stamp: 'am 4/25/2018 23:47:33'!
+newWith: anObject on: anStackContainer
+	^ self new
+		initializeWith: anObject
+		on: anStackContainer.! !
+
+
+!classDefinition: #OOStack category: #'Stack-Exercise'!
+Object subclass: #OOStack
+	instanceVariableNames: 'tower'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'accessing' stamp: 'am 4/25/2018 23:43:00'!
 pop
 	| e |
-	e _ firstStackElement getElement.
-	firstStackElement _ firstStackElement nextContainer.
+	e _ tower topDisk.
+	tower _ tower laterTower.
 	^ e.! !
 
-!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+!OOStack methodsFor: 'accessing' stamp: 'am 4/25/2018 23:46:30'!
 push: anObject
 	| e |
-	e _ StackContainer
+	e _ RodWithDisks
 		newWith: anObject
-		andOn: firstStackElement.
-	firstStackElement _ e.! !
+		on: tower.
+	tower _ e.! !
 
-!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+!OOStack methodsFor: 'accessing' stamp: 'am 4/25/2018 23:35:34'!
 size
-	^ firstStackElement numberInTheStack.! !
+	^ tower numberOfDisks.! !
 
-!OOStack methodsFor: 'accessing' stamp: 'm 4/25/2018 01:06:58'!
+!OOStack methodsFor: 'accessing' stamp: 'am 4/25/2018 23:35:34'!
 top
-	^ firstStackElement getElement.! !
+	^ tower topDisk.! !
 
 
-!OOStack methodsFor: 'testing' stamp: 'm 4/25/2018 01:06:58'!
+!OOStack methodsFor: 'testing' stamp: 'am 4/25/2018 23:35:34'!
 isEmpty
-	^ firstStackElement isStackBottom.! !
+	^ tower isEmpty.! !
 
 
-!OOStack methodsFor: 'initialization' stamp: 'm 4/25/2018 01:06:58'!
+!OOStack methodsFor: 'initialization' stamp: 'am 4/25/2018 23:35:34'!
 initialize
-	firstStackElement _ StackBottom new.! !
+	tower _ EmptyRod new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -187,86 +272,3 @@ OOStack class
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
-
-
-!classDefinition: #StackElement category: #'Stack-Exercise'!
-Object subclass: #StackElement
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!StackElement methodsFor: 'accessing' stamp: 'm 4/25/2018 01:08:48'!
-getElement
-	self shouldBeImplemented.! !
-
-!StackElement methodsFor: 'accessing' stamp: 'm 4/25/2018 01:09:51'!
-numberInTheStack
-	self shouldBeImplemented.! !
-
-
-!StackElement methodsFor: 'testing' stamp: 'm 4/25/2018 01:09:27'!
-isStackBottom
-	self shouldBeImplemented.! !
-
-
-!classDefinition: #StackBottom category: #'Stack-Exercise'!
-StackElement subclass: #StackBottom
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!StackBottom methodsFor: 'testing' stamp: 'm 4/25/2018 00:23:42'!
-isStackBottom
-	^ true.! !
-
-
-!StackBottom methodsFor: 'accessing' stamp: 'm 4/25/2018 01:05:27'!
-getElement
-	self error: OOStack stackEmptyErrorDescription.! !
-
-!StackBottom methodsFor: 'accessing' stamp: 'm 4/25/2018 01:02:24'!
-numberInTheStack
-	^ 0.! !
-
-
-!classDefinition: #StackContainer category: #'Stack-Exercise'!
-StackElement subclass: #StackContainer
-	instanceVariableNames: 'element onStackContainer'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!StackContainer methodsFor: 'intialization' stamp: 'm 4/25/2018 00:33:07'!
-initializeWith: anObject andOn: anElementContainer
-	element _ anObject.
-	onStackContainer _ anElementContainer.! !
-
-
-!StackContainer methodsFor: 'testing' stamp: 'm 4/25/2018 00:23:42'!
-isStackBottom
-	^ false.! !
-
-
-!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 00:29:39'!
-getElement
-	^element.! !
-
-!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 00:33:07'!
-nextContainer
-	^ onStackContainer.! !
-
-!StackContainer methodsFor: 'accessing' stamp: 'm 4/25/2018 01:02:24'!
-numberInTheStack
-	^ 1 + onStackContainer numberInTheStack.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'StackContainer class' category: #'Stack-Exercise'!
-StackContainer class
-	instanceVariableNames: ''!
-
-!StackContainer class methodsFor: 'as yet unclassified' stamp: 'm 4/25/2018 00:19:29'!
-newWith: anObject andOn: anStackContainer
-	^self new initializeWith: anObject andOn: anStackContainer.! !
