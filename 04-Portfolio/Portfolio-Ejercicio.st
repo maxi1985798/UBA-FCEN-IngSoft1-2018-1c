@@ -439,7 +439,7 @@ transactionsOf: aSummarizingAccount
 	^aSummarizingAccount transactions.! !
 
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 21:38:52'!
+!Portfolio methodsFor: 'initialization' stamp: 'AM 5/9/2018 21:38:52'!
 initializeWith: aSummarizingAccount with: aSummarizingAccount2 
 	summarizingAccounts _ Bag new.
 	summarizingAccounts add: aSummarizingAccount.
@@ -466,11 +466,11 @@ withAll: aCollectionOfAccounts
 	self shouldBeImplemented ! !
 
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 23:13:46'!
+!Portfolio class methodsFor: 'error messages' stamp: 'AM 5/9/2018 23:13:46'!
 accountAlreadyManagedErrorMessage
 	^'la cuenta ya está administrada'.! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 22:57:29'!
+!Portfolio class methodsFor: 'error messages' stamp: 'AM 5/9/2018 22:57:29'!
 accountNotManagedMessageDescription
 	^'no es una cuenta que administro'.! !
 
