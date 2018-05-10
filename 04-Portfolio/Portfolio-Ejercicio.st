@@ -403,38 +403,47 @@ balance
 
 !classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
 SummarizingAccount subclass: #Portfolio
-	instanceVariableNames: ''
+	instanceVariableNames: 'summarizingAccounts'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!Portfolio methodsFor: 'balance' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'balance' stamp: 'AM 5/9/2018 21:48:14'!
 balance
 
-	self shouldBeImplemented ! !
+	^summarizingAccounts inject: 0 into: [:acum :each | acum + each balance].! !
 
 
-!Portfolio methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 18:39'!
-manages: anAccount
+!Portfolio methodsFor: 'testing' stamp: 'AM 5/9/2018 22:42:42'!
+manages: aSummarizingAccount
 
-		self shouldBeImplemented 
+		^self = aSummarizingAccount or: [summarizingAccounts anySatisfy: [:each | each manages: aSummarizingAccount]].
 ! !
 
-!Portfolio methodsFor: 'testing' stamp: 'HernanWilkinson 7/13/2011 18:39'!
-registers: aTtransaction
+!Portfolio methodsFor: 'testing' stamp: 'AM 5/9/2018 22:05:18'!
+registers: anAccountTransaction
 
-	self shouldBeImplemented ! !
+	^summarizingAccounts anySatisfy: [:each | each registers: anAccountTransaction].! !
 
 
-!Portfolio methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:39'!
+!Portfolio methodsFor: 'transactions' stamp: 'AM 5/9/2018 23:21:19'!
 transactions 
 
-	self shouldBeImplemented ! !
+	^summarizingAccounts inject: OrderedCollection new into: [:acum :each | acum addAll: each transactions; yourself].! !
 
-!Portfolio methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:40'!
-transactionsOf: anAccount 
+!Portfolio methodsFor: 'transactions' stamp: 'AM 5/9/2018 23:36:58'!
+transactionsOf: aSummarizingAccount
+	
+	(self manages: aSummarizingAccount) ifFalse: [self error: self class accountNotManagedMessageDescription].
+	
+	^aSummarizingAccount transactions.! !
 
-	self shouldBeImplemented ! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 21:38:52'!
+initializeWith: aSummarizingAccount with: aSummarizingAccount2 
+	summarizingAccounts _ Bag new.
+	summarizingAccounts add: aSummarizingAccount.
+     summarizingAccounts add: aSummarizingAccount2.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -442,15 +451,28 @@ transactionsOf: anAccount
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:41'!
-with: anAccount1 with: anAccount2
+!Portfolio class methodsFor: 'instance creation' stamp: 'AM 5/9/2018 23:15:41'!
+with: aSummarizingAccount1 with: aSummarizingAccount2
 
-	self shouldBeImplemented ! !
+	((aSummarizingAccount2 manages: aSummarizingAccount1)
+		or: [aSummarizingAccount1 manages: aSummarizingAccount2])
+			ifTrue: [ self error: self accountAlreadyManagedErrorMessage].
+
+	^self new initializeWith: aSummarizingAccount1 with: aSummarizingAccount2.! !
 
 !Portfolio class methodsFor: 'instance creation' stamp: 'HernanWilkinson 7/13/2011 18:41'!
 withAll: aCollectionOfAccounts
 
 	self shouldBeImplemented ! !
+
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 23:13:46'!
+accountAlreadyManagedErrorMessage
+	^'la cuenta ya está administrada'.! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'AM 5/9/2018 22:57:29'!
+accountNotManagedMessageDescription
+	^'no es una cuenta que administro'.! !
 
 
 !classDefinition: #ReceptiveAccount category: #'Portfolio-Ejercicio'!
