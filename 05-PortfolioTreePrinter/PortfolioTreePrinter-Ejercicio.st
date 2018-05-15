@@ -519,25 +519,28 @@ accountTransferNetOf: aReceptiveAccount
 	"^aReceptiveAccount accountTransferNet"
 	^(TransferNet of: aReceptiveAccount) value.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'AM 5/14/2018 18:04:51'!
+!PortfolioTest methodsFor: 'test support' stamp: 'm 5/15/2018 11:55:16'!
 investmentEarningsOf: aReceptiveAccount 
 	
-	^aReceptiveAccount invesmentEarnings.! !
+	"^aReceptiveAccount invesmentEarnings."
+	^(InvestmentEarnings of: aReceptiveAccount) value.! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'AM 5/14/2018 18:04:57'!
+!PortfolioTest methodsFor: 'test support' stamp: 'm 5/15/2018 11:56:20'!
 investmentNetOf: aReceptiveAccount 
 	
-	^aReceptiveAccount investmentNet.! !
+	"^aReceptiveAccount investmentNet."
+	^(InvestmentNet of: aReceptiveAccount) value.
+	! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'HernanWilkinson 9/6/2016 19:43'!
-portofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
+!PortfolioTest methodsFor: 'test support' stamp: 'm 5/15/2018 14:57:57'!
+portofolioTreeOf: aPortfolio namingAccountWith: aDictionaryOfAccountsAndNames
 	
-	self shouldBeImplemented ! !
+	^(PortfolioDepthFirstOrderPrinter of: aPortfolio namingAccountWith: aDictionaryOfAccountsAndNames ) value! !
 
-!PortfolioTest methodsFor: 'test support' stamp: 'HernanWilkinson 9/6/2016 19:43'!
-reversePortofolioTreeOf: aPortfolio namingAccountWith: aDictionary 
+!PortfolioTest methodsFor: 'test support' stamp: 'm 5/15/2018 16:23:29'!
+reversePortofolioTreeOf: aPortfolio namingAccountWith: aNamingAccounts
 	
-	self shouldBeImplemented ! !
+	^(PortfolioDepthFirstOrderPrinter of: aPortfolio namingAccountWith: aNamingAccounts) value reverse.! !
 
 
 !classDefinition: #AccountSummary category: #'PortfolioTreePrinter-Ejercicio'!
@@ -560,9 +563,9 @@ value
 	
 	^result.! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 19:18:16'!
-valueForCertificateOfDeposit: aCertificateOfDeposit 
-	^'Plazo fijo por 1000 durante 30 dias a una tna de 10%'! !
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 11:51:03'!
+valueForCertificateOfDeposit: aCertificateOfDepositValue tna: aTnaValue numberOfDays: aNumberOfDays
+	^'Plazo fijo por ', aCertificateOfDepositValue asString , ' durante ', aNumberOfDays asString , ' dias a una tna de ', (aTnaValue*100) asString , '%'! !
 
 !AccountSummary methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 18:30:30'!
 valueForDeposit: aDeposit 
@@ -662,9 +665,9 @@ initializeWith: anAmount during: aNumberOfDays at: anInterestRate on: aSummarizi
 	
 	aSummarizingAccount register: self.! !
 
-!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 19:12:43'!
+!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 11:33:51'!
 workWith: aMethodObject 
-	^aMethodObject valueForCertificateOfDeposit: self.! !
+	^aMethodObject valueForCertificateOfDeposit: value tna: tna numberOfDays: numberOfDays.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -897,6 +900,127 @@ register: aValue on: account
 	^ withdraw! !
 
 
+!classDefinition: #InvestmentEarnings category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #InvestmentEarnings
+	instanceVariableNames: 'account accountInvestmentEarningns'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!InvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:27:03'!
+initializeWith: aReceptiveAccount 
+	account := aReceptiveAccount .! !
+
+!InvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:30:37'!
+value
+	accountInvestmentEarningns := 0.
+	account transactionsDo: [ :aTransaction | accountInvestmentEarningns := accountInvestmentEarningns + (aTransaction workWith: self)].
+	^accountInvestmentEarningns ! !
+
+!InvestmentEarnings methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:33:17'!
+valueForCertificateOfDeposit: aCertificateOfDepositValue tna: aTnaValue numberOfDays: aNumberOfDays
+	^ (aTnaValue/360)*aNumberOfDays*aCertificateOfDepositValue.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'InvestmentEarnings class' category: #'PortfolioTreePrinter-Ejercicio'!
+InvestmentEarnings class
+	instanceVariableNames: ''!
+
+!InvestmentEarnings class methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:26:42'!
+of: aReceptiveAccount 
+	^self new initializeWith: aReceptiveAccount.! !
+
+
+!classDefinition: #InvestmentNet category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #InvestmentNet
+	instanceVariableNames: 'account accountInvestmentNet'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:18:28'!
+initializeWith: aReceptiveAccount 
+	account _ aReceptiveAccount.! !
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:23:34'!
+value
+	accountInvestmentNet := 0.
+	account transactionsDo: [ :aTransaction | accountInvestmentNet := accountInvestmentNet + (aTransaction workWith: self)].
+	^accountInvestmentNet ! !
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:26:02'!
+valueForCertificateOfDeposit: aCertificateOfDepositValue tna: aTnaValue numberOfDays: aNumberOfDays
+	^aCertificateOfDepositValue.! !
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:24:41'!
+valueForDeposit: aDeposit 
+	^0.! !
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:25:21'!
+valueForTransferWithdraw: aTransferWithdraw 
+	^0.! !
+
+!InvestmentNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:25:02'!
+valueForWithdraw: aWithdraw 
+	^0.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'InvestmentNet class' category: #'PortfolioTreePrinter-Ejercicio'!
+InvestmentNet class
+	instanceVariableNames: ''!
+
+!InvestmentNet class methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 12:18:10'!
+of: aReceptiveAccount 
+	^self new initializeWith: aReceptiveAccount.! !
+
+
+!classDefinition: #PortfolioDepthFirstOrderPrinter category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #PortfolioDepthFirstOrderPrinter
+	instanceVariableNames: 'portfolio accountsNamed lines'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:15:01'!
+initializeWith: aPortfolio namingAccountWith: aDictionary 
+	portfolio := aPortfolio.
+	accountsNamed := aDictionary.
+	lines := OrderedCollection new.! !
+
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 16:14:13'!
+portfolio: aPortfolio withAccounts: anArrayOfPortfolios
+	| dfsSubPortfolios dfsSubPortfoliosWithSpaceAdded |
+	lines add: (accountsNamed at: aPortfolio).
+	dfsSubPortfolios := OrderedCollection new.
+	anArrayOfPortfolios inject:  dfsSubPortfolios into: [ :currentDfsSubPortfoliosPrinted :anotherPortfolio | 
+		currentDfsSubPortfoliosPrinted addAll: (PortfolioDepthFirstOrderPrinter of: anotherPortfolio namingAccountWith: accountsNamed) value;yourself ].
+	dfsSubPortfoliosWithSpaceAdded := dfsSubPortfolios collect: [ :aPrintedProtfolio | ' ', aPrintedProtfolio].
+	lines addAll: dfsSubPortfoliosWithSpaceAdded.
+	! !
+
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:17:32'!
+receptiveAccount: aReceptiveAccount 
+	lines add: (accountsNamed at: aReceptiveAccount).! !
+
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:07:45'!
+value
+	
+	portfolio workWith: self.
+	^lines! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioDepthFirstOrderPrinter class' category: #'PortfolioTreePrinter-Ejercicio'!
+PortfolioDepthFirstOrderPrinter class
+	instanceVariableNames: ''!
+
+!PortfolioDepthFirstOrderPrinter class methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 14:58:27'!
+of: aPortfolio namingAccountWith: aDictionary 
+	^ self new initializeWith: aPortfolio namingAccountWith: aDictionary .! !
+
+
 !classDefinition: #SummarizingAccount category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #SummarizingAccount
 	instanceVariableNames: ''
@@ -985,6 +1109,11 @@ transactionsOf: anAccount
 initializeWithAll: aCollectionOfAccounts
 
 	accounts := aCollectionOfAccounts   ! !
+
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:10:48'!
+workWith: aMethodObject
+	^aMethodObject portfolio: self withAccounts: accounts.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1106,6 +1235,10 @@ investmentNet
 transactionsDo: aBlockClosure 
 	transactions do: aBlockClosure.! !
 
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:16:33'!
+workWith: anMethodObject
+	^anMethodObject receptiveAccount: self.! !
+
 
 !classDefinition: #Transfer category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #Transfer
@@ -1165,6 +1298,10 @@ value
 	accountTransferNet := 0.
 	account transactionsDo: [ :aTransaction | accountTransferNet := accountTransferNet + (aTransaction workWith: self)].
 	^accountTransferNet! !
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 11:35:16'!
+valueForCertificateOfDeposit: aCertificateOfDepositValue tna: aTnaValue numberOfDays: aNumberOfDays
+	^0! !
 
 !TransferNet methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 19:03:19'!
 valueForDeposit: aDeposit 
