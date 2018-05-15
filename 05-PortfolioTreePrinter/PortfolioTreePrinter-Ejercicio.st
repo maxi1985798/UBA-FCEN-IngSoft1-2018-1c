@@ -929,19 +929,26 @@ Object subclass: #PortfolioDepthFirstOrderPrinter
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 18:05:13'!
+getPrintedDepthFirstOrderOf: aPortfolio
+	
+	^(PortfolioDepthFirstOrderPrinter of: aPortfolio namingAccountWith: accountsNamed) value
+	! !
+
 !PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 15:15:01'!
 initializeWith: aPortfolio namingAccountWith: aDictionary 
 	portfolio := aPortfolio.
 	accountsNamed := aDictionary.
 	lines := OrderedCollection new.! !
 
-!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 16:14:13'!
+!PortfolioDepthFirstOrderPrinter methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 18:06:46'!
 portfolio: aPortfolio withAccounts: anArrayOfPortfolios
 	| dfsSubPortfolios dfsSubPortfoliosWithSpaceAdded |
 	lines add: (accountsNamed at: aPortfolio).
 	dfsSubPortfolios := OrderedCollection new.
-	anArrayOfPortfolios inject:  dfsSubPortfolios into: [ :currentDfsSubPortfoliosPrinted :anotherPortfolio | 
-		currentDfsSubPortfoliosPrinted addAll: (PortfolioDepthFirstOrderPrinter of: anotherPortfolio namingAccountWith: accountsNamed) value;yourself ].
+	anArrayOfPortfolios 
+		inject:  dfsSubPortfolios 
+		into: [ :currentDfsSubPortfoliosPrinted :anotherPortfolio | 	currentDfsSubPortfoliosPrinted addAll: (self getPrintedDepthFirstOrderOf: anotherPortfolio) ;yourself ].
 	dfsSubPortfoliosWithSpaceAdded := dfsSubPortfolios collect: [ :aPrintedProtfolio | ' ', aPrintedProtfolio].
 	lines addAll: dfsSubPortfoliosWithSpaceAdded.
 	! !
