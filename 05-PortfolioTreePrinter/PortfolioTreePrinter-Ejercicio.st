@@ -643,14 +643,6 @@ AccountTransaction subclass: #CertificateOfDeposit
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:59:46'!
-affectInvesmentEarnings: anInvesmentEarnings 
-	^anInvesmentEarnings + (numberOfDays*value*(tna/360)).! !
-
-!CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:59:19'!
-affectInvesmentNet: anInvestmentNet 
-	^anInvestmentNet + value.! !
-
 !CertificateOfDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:59:29'!
 affectbalance: aBalance 
 	^aBalance - value.! !
@@ -700,21 +692,9 @@ value
 	^ value! !
 
 
-!Deposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:42:08'!
-affectInvesmentNet: anInvesmentNet 
-	^anInvesmentNet.! !
-
-!Deposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:27:08'!
-affectTransferNet: aTransferNet 
-	^aTransferNet.! !
-
 !Deposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:22:28'!
 affectbalance: aBalance 
 	^aBalance + value.! !
-
-!Deposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 19:45:48'!
-printString
-^'Deposito por ', value printString.! !
 
 !Deposit methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 18:40:26'!
 workWith: aMethodObject
@@ -749,10 +729,6 @@ AccountTransaction subclass: #TransferDeposit
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:29:07'!
-affectTransferNet: aTransferNet 
-	^aTransferNet + transfer value .! !
-
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:54:39'!
 affectbalance: aBalance 
 	^aBalance + self value.! !
@@ -760,10 +736,6 @@ affectbalance: aBalance
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:48:50'!
 initializeKnowing: aTransfer 
 	transfer _ aTransfer.! !
-
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:08:43'!
-printString
-	^'Transferencia por ', transfer value printString.! !
 
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:05:27'!
 transfer
@@ -795,14 +767,6 @@ AccountTransaction subclass: #TransferWithdraw
 	poolDictionaries: ''
 	category: 'PortfolioTreePrinter-Ejercicio'!
 
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:43:20'!
-affectInvesmentNet: anInvestmentNet 
-	^anInvestmentNet.! !
-
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:28:28'!
-affectTransferNet: aTransferNet 
-	^aTransferNet - transfer value .! !
-
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:50:23'!
 affectbalance: aBalance 
 	^aBalance - self value.! !
@@ -810,10 +774,6 @@ affectbalance: aBalance
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:46:32'!
 initializeKnowing: aTransfer 
 	transfer _ aTransfer.! !
-
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:09:01'!
-printString
-	^'Transferencia por -', transfer value printString.! !
 
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:05:08'!
 transfer
@@ -857,22 +817,9 @@ value
 	^ value.! !
 
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:42:46'!
-affectInvesmentNet: anInvesmentNet 
-	^anInvesmentNet.! !
-
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:27:43'!
-affectTransferNet: aTransferNet 
-	^aTransferNet.! !
-
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:21:44'!
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'm 5/15/2018 17:08:57'!
 affectbalance: aBalance
 	^aBalance - value.! !
-
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 19:45:37'!
-printString
-
-	^'Extraccion por ', value printString.! !
 
 !Withdraw methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 18:41:43'!
 workWith: aMethodObject 
@@ -1214,23 +1161,6 @@ registers: aTtransaction
 ! !
 
 
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 20:43:21'!
-accountSummary
-	
-	^transactions inject: OrderedCollection new into: [:currentSummary :aTransaction | currentSummary addLast: aTransaction printString ; yourself ]! !
-
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:26:21'!
-accountTransferNet
-	^transactions inject: 0 into: [ :currentTransferNet :aTransaction | aTransaction affectTransferNet: currentTransferNet].! !
-
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:51:06'!
-invesmentEarnings
-	^transactions inject: 0 into: [:currentInvesmentEarnings :aTransaction | aTransaction affectInvesmentEarnings: currentInvesmentEarnings].! !
-
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:41:11'!
-investmentNet
-	^transactions inject: 0 into: [:currentInvesmentNet :aTransaction | aTransaction affectInvesmentNet: currentInvesmentNet].! !
-
 !ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'AM 5/14/2018 18:25:02'!
 transactionsDo: aBlockClosure 
 	transactions do: aBlockClosure.! !
@@ -1261,11 +1191,6 @@ initializeWith: anAmount from: aSummarizingAccount to: aSummarizingAccount2
 	
 	aSummarizingAccount register: withdraw.
 	aSummarizingAccount2 register: deposit.! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 19:50:40'!
-printString
-
-	^'Transferencia por ', amount printString.! !
 
 !Transfer methodsFor: 'as yet unclassified' stamp: 'AM 5/10/2018 21:01:56'!
 value
