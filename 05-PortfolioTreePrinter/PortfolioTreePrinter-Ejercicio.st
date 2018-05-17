@@ -1033,6 +1033,69 @@ of: aReceptiveAccount
 	^self new initializeWith: aReceptiveAccount.! !
 
 
+!classDefinition: #PortfolioTreePrinter category: #'PortfolioTreePrinter-Ejercicio'!
+Object subclass: #PortfolioTreePrinter
+	instanceVariableNames: 'account accountNameMapper listOfAccountNames level'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'PortfolioTreePrinter-Ejercicio'!
+
+!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'AM 5/16/2018 22:56:31'!
+value
+
+	listOfAccountNames _ OrderedCollection new.
+
+	^account workWith: self.! !
+
+!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'm 5/17/2018 02:07:43'!
+valueWithPortfolio: aPortfolio
+	listOfAccountNames add:
+		(self
+			shiftWithSpaces: (accountNameMapper at: aPortfolio)
+			thisNumberOfTimes: level).
+	level _ level + 1.
+	aPortfolio accountsDo: [ :anAccount |
+		anAccount workWith: self ].
+	level _ level - 1.
+	^ listOfAccountNames.! !
+
+!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'm 5/17/2018 02:07:43'!
+valueWithReceptiveAccount: aReceptiveAccount
+	^ listOfAccountNames add:
+		(self
+			shiftWithSpaces: (accountNameMapper at: aReceptiveAccount)
+			thisNumberOfTimes: level).! !
+
+
+!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'm 5/17/2018 02:03:36'!
+initializeFor: aSummarizingAccount with: aDictionaryAccountNamesMapper atLevel: aLevelNumber
+	account _ aSummarizingAccount.
+	accountNameMapper _ aDictionaryAccountNamesMapper.
+	level _ aLevelNumber.! !
+
+
+!PortfolioTreePrinter methodsFor: 'private' stamp: 'm 5/17/2018 02:09:43'!
+shiftWithSpaces: aStringToAppendSpacesInTheBeginning thisNumberOfTimes: aNumberOfSpacesToAppendInTheBeginning
+	| resultingString |
+	resultingString _ ''.
+	aNumberOfSpacesToAppendInTheBeginning timesRepeat: [ resultingString _ resultingString append: Character space asString ].
+	^ resultingString append: aStringToAppendSpacesInTheBeginning.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioTreePrinter class' category: #'PortfolioTreePrinter-Ejercicio'!
+PortfolioTreePrinter class
+	instanceVariableNames: ''!
+
+!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'm 5/17/2018 02:00:18'!
+for: aSummarizingAccount with: aDictionaryAccountNamesMapper 
+	^self for: aSummarizingAccount with: aDictionaryAccountNamesMapper atLevel: 0.! !
+
+!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'm 5/17/2018 01:59:50'!
+for: aPortfolio with: aDictionaryAccountNamesMapper atLevel: aLevelNumber
+	^self new initializeFor: aPortfolio with: aDictionaryAccountNamesMapper atLevel: aLevelNumber.! !
+
+
 !classDefinition: #ReversePortofolioTreePrinter category: #'PortfolioTreePrinter-Ejercicio'!
 Object subclass: #ReversePortofolioTreePrinter
 	instanceVariableNames: 'portfolioTreePrinter'
@@ -1261,92 +1324,6 @@ workWith: aMethodObject
 	"^anMethodObject receptiveAccount: self."
 	
 	^aMethodObject valueWithReceptiveAccount: self.! !
-
-
-!classDefinition: #SummarizingAccountMethod category: #'PortfolioTreePrinter-Ejercicio'!
-Object subclass: #SummarizingAccountMethod
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!SummarizingAccountMethod methodsFor: 'evaluating' stamp: 'AM 5/16/2018 22:28:51'!
-value
-
-	self subclassResponsibility.! !
-
-!SummarizingAccountMethod methodsFor: 'evaluating' stamp: 'AM 5/17/2018 00:30:56'!
-valueWithPortfolio: aPortfolio 
-
-	self subclassResponsibility.! !
-
-!SummarizingAccountMethod methodsFor: 'evaluating' stamp: 'AM 5/17/2018 00:31:25'!
-valueWithReceptiveAccount: aReceptiveAccount
-
-	self subclassResponsibility.! !
-
-
-!classDefinition: #PortfolioTreePrinter category: #'PortfolioTreePrinter-Ejercicio'!
-SummarizingAccountMethod subclass: #PortfolioTreePrinter
-	instanceVariableNames: 'account accountNameMapper listOfAccountNames level'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'PortfolioTreePrinter-Ejercicio'!
-
-!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'AM 5/16/2018 22:56:31'!
-value
-
-	listOfAccountNames _ OrderedCollection new.
-
-	^account workWith: self.! !
-
-!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'm 5/17/2018 02:07:43'!
-valueWithPortfolio: aPortfolio
-	listOfAccountNames add:
-		(self
-			shiftWithSpaces: (accountNameMapper at: aPortfolio)
-			thisNumberOfTimes: level).
-	level _ level + 1.
-	aPortfolio accountsDo: [ :anAccount |
-		anAccount workWith: self ].
-	level _ level - 1.
-	^ listOfAccountNames.! !
-
-!PortfolioTreePrinter methodsFor: 'evaluating' stamp: 'm 5/17/2018 02:07:43'!
-valueWithReceptiveAccount: aReceptiveAccount
-	^ listOfAccountNames add:
-		(self
-			shiftWithSpaces: (accountNameMapper at: aReceptiveAccount)
-			thisNumberOfTimes: level).! !
-
-
-!PortfolioTreePrinter methodsFor: 'initialization' stamp: 'm 5/17/2018 02:03:36'!
-initializeFor: aSummarizingAccount with: aDictionaryAccountNamesMapper atLevel: aLevelNumber
-	account _ aSummarizingAccount.
-	accountNameMapper _ aDictionaryAccountNamesMapper.
-	level _ aLevelNumber.! !
-
-
-!PortfolioTreePrinter methodsFor: 'private' stamp: 'm 5/17/2018 02:09:43'!
-shiftWithSpaces: aStringToAppendSpacesInTheBeginning thisNumberOfTimes: aNumberOfSpacesToAppendInTheBeginning
-	| resultingString |
-	resultingString _ ''.
-	aNumberOfSpacesToAppendInTheBeginning timesRepeat: [ resultingString _ resultingString append: Character space asString ].
-	^ resultingString append: aStringToAppendSpacesInTheBeginning.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'PortfolioTreePrinter class' category: #'PortfolioTreePrinter-Ejercicio'!
-PortfolioTreePrinter class
-	instanceVariableNames: ''!
-
-!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'm 5/17/2018 02:00:18'!
-for: aSummarizingAccount with: aDictionaryAccountNamesMapper 
-	^self for: aSummarizingAccount with: aDictionaryAccountNamesMapper atLevel: 0.! !
-
-!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'm 5/17/2018 01:59:50'!
-for: aPortfolio with: aDictionaryAccountNamesMapper atLevel: aLevelNumber
-	^self new initializeFor: aPortfolio with: aDictionaryAccountNamesMapper atLevel: aLevelNumber.! !
 
 
 !classDefinition: #Transfer category: #'PortfolioTreePrinter-Ejercicio'!
