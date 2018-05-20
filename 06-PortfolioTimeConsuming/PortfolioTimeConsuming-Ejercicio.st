@@ -1296,14 +1296,29 @@ Object subclass: #ParallelExecuter
 	poolDictionaries: ''
 	category: 'PortfolioTimeConsuming-Ejercicio'!
 
-!ParallelExecuter methodsFor: 'as yet unclassified' stamp: 'm 5/20/2018 16:28:51'!
+!ParallelExecuter methodsFor: 'initialization' stamp: 'm 5/20/2018 16:28:51'!
 initialize
 	blocksToExecute _ OrderedCollection new.
 	finalBlockSemaphore _ Semaphore new.
 	firstBlockSemaphore _ finalBlockSemaphore.
 	results _ OrderedCollection new.! !
 
-!ParallelExecuter methodsFor: 'as yet unclassified' stamp: 'm 5/20/2018 16:48:39'!
+
+!ParallelExecuter methodsFor: 'evaluating' stamp: 'm 5/20/2018 17:07:44'!
+value
+	self start.
+	finalBlockSemaphore wait.
+	^ results.! !
+
+
+!ParallelExecuter methodsFor: 'private' stamp: 'm 5/20/2018 16:28:51'!
+start
+	blocksToExecute do: [ :aBlock |
+		aBlock fork ].
+	firstBlockSemaphore signal.! !
+
+
+!ParallelExecuter methodsFor: 'associating' stamp: 'm 5/20/2018 16:48:39'!
 register: aBlockClosure
 	| previousBlockSemaphore nextBlockSemaphore |
 	previousBlockSemaphore _ finalBlockSemaphore.
@@ -1314,18 +1329,6 @@ register: aBlockClosure
 		previousBlockSemaphore wait.
 		results add: partialResult.
 		nextBlockSemaphore signal ].! !
-
-!ParallelExecuter methodsFor: 'as yet unclassified' stamp: 'm 5/20/2018 16:28:51'!
-start
-	blocksToExecute do: [ :aBlock |
-		aBlock fork ].
-	firstBlockSemaphore signal.! !
-
-!ParallelExecuter methodsFor: 'as yet unclassified' stamp: 'm 5/20/2018 17:07:44'!
-value
-	self start.
-	finalBlockSemaphore wait.
-	^ results.! !
 
 
 !classDefinition: #ReversePortfolioTreePrinter category: #'PortfolioTimeConsuming-Ejercicio'!
