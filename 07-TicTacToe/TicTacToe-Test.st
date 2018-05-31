@@ -490,7 +490,7 @@ test33GameIsNotOverWhenOIsPlaying
 	self deny: game isOver.! !
 
 
-!TicTacToeTest methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:36:00'!
+!TicTacToeTest methodsFor: 'test support' stamp: 'm 5/30/2018 16:36:00'!
 setUp
 	aGameWithNoPlays := TicTacToe new.
 	aTiedGame := TicTacToe new.
@@ -541,6 +541,47 @@ hasWon: positions
 		(self hasCompletedColumn: positions) or: [
 			(self hasDownDiagonal: positions) or: [ self hasUpDiagonal: positions ]]].! !
 
+!TicTacToe methodsFor: 'private' stamp: 'm 5/31/2018 12:13:48'!
+markWithOWhenPlayerXIsPlayingAt: aPosition
+	self error: self class notOTurnErrorMessage.! !
+
+!TicTacToe methodsFor: 'private' stamp: 'm 5/31/2018 12:13:35'!
+markWithOWhenplayerOIsPlayingAt: aPosition
+	os , xs
+		detect: [ :anotherPosition |
+			anotherPosition = aPosition ]
+		ifFound: [ :aFoundPosition |
+			self error: self class positionTakenErrorMessage ]
+		ifNone: [
+			os add: aPosition.
+			self hasOWon ifTrue: [ ^ state _ GameOverWithOAsWinner new ].
+			state _ XPlaying new ].! !
+
+!TicTacToe methodsFor: 'private' stamp: 'm 5/31/2018 12:13:08'!
+markWithXWhenPlayerOIsPlayingAt: aPosition
+	self error: self class notXTurnErrorMessage.! !
+
+!TicTacToe methodsFor: 'private' stamp: 'm 5/31/2018 12:12:32'!
+markWithXWhenPlayerXIsPlayingAt: aPosition
+	os , xs
+		detect: [ :anotherPosition |
+			anotherPosition = aPosition ]
+		ifFound: [ :aFoundPosition |
+			self error: self class positionTakenErrorMessage ]
+		ifNone: [
+			xs add: aPosition.
+			self hasXWon ifTrue: [ ^ state _ GameOverWithXAsWinner new ].
+			self hasAllCellsOccupied ifTrue: [ ^ state _ GameOverWithDraw new ].
+			state _ OPlaying new ].! !
+
+
+!TicTacToe methodsFor: 'testing' stamp: 'm 5/30/2018 15:36:58'!
+hasAllCellsOccupied
+	^xs size + os size = 9.! !
+
+!TicTacToe methodsFor: 'testing' stamp: 'm 5/30/2018 00:57:35'!
+hasOWon
+	^self hasWon: os.! !
 
 !TicTacToe methodsFor: 'testing' stamp: 'm 5/30/2018 01:22:29'!
 hasPlayerOWon
@@ -549,6 +590,10 @@ hasPlayerOWon
 !TicTacToe methodsFor: 'testing' stamp: 'm 5/30/2018 12:29:59'!
 hasPlayerXWon
 	^ state hasPlayerXWon.! !
+
+!TicTacToe methodsFor: 'testing' stamp: 'm 5/29/2018 23:52:39'!
+hasXWon
+	^self hasWon: xs.! !
 
 !TicTacToe methodsFor: 'testing' stamp: 'm 5/30/2018 15:51:39'!
 isOver
@@ -608,52 +653,6 @@ markWithXAt: aPosition
 	(self hasWon: xs) ifTrue: [ ^ winner _ #x ].
 	turn _ #o."! !
 
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:38:37'!
-MarkWithOWhenPlayerXIsPlayingAt: aPosition
-	self error: self class notOTurnErrorMessage.! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:50:07'!
-MarkWithOWhenplayerOIsPlayingAt: aPosition
-	os , xs
-		detect: [ :anotherPosition |
-			anotherPosition = aPosition ]
-		ifFound: [ :aFoundPosition | self error: self class positionTakenErrorMessage ]
-		ifNone: [
-			os add: aPosition.
-			(self hasOWon) ifTrue: [ ^ state := GameOverWithOAsWinner new. ].
-			state := XPlaying new.
-			].! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:05:13'!
-MarkWithXWhenPlayerOIsPlayingAt: aPosition
-	self error: self class notXTurnErrorMessage.! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:50:16'!
-MarkWithXWhenPlayerXIsPlayingAt: aPosition
-	os , xs
-		detect: [ :anotherPosition |
-			anotherPosition = aPosition ]
-		ifFound: [ :aFoundPosition | self error: self class positionTakenErrorMessage ]
-		ifNone: [
-			xs add: aPosition.
-			(self hasXWon) ifTrue: [ ^ state := GameOverWithXAsWinner new. ].
-			(self hasAllCellsOccupied) ifTrue: [ ^ state := GameOverWithDraw new. ].
-			state := OPlaying new.
-			].! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:36:58'!
-hasAllCellsOccupied
-	^xs size + os size = 9.! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:57:35'!
-hasOWon
-	^self hasWon: os.! !
-
-!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:52:39'!
-hasXWon
-	^self hasWon: xs.! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TicTacToe class' category: #'TicTacToe-Test'!
@@ -688,36 +687,37 @@ Object subclass: #TicTacToeState
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:13:33'!
-hasPlayerOWon
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:13:47'!
-hasPlayerXWon
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:14:03'!
-isOver
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:14:15'!
-isPlayingO
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:15:47'!
-isPlayingX
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:16:12'!
-isTied
-	self subclassResponsibility.! !
-
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:15:22'!
+!TicTacToeState methodsFor: 'game actions' stamp: 'm 5/30/2018 16:15:22'!
 markWithOAt: aPosition on: aTicTacToe 
 	self subclassResponsibility.! !
 
-!TicTacToeState methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:15:26'!
+!TicTacToeState methodsFor: 'game actions' stamp: 'm 5/30/2018 16:15:26'!
 markWithXAt: aPosition on: aTicTacToe 
+	self subclassResponsibility.! !
+
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:13:33'!
+hasPlayerOWon
+	self subclassResponsibility.! !
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:13:47'!
+hasPlayerXWon
+	self subclassResponsibility.! !
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:14:03'!
+isOver
+	self subclassResponsibility.! !
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:14:15'!
+isPlayingO
+	self subclassResponsibility.! !
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:15:47'!
+isPlayingX
+	self subclassResponsibility.! !
+
+!TicTacToeState methodsFor: 'testing' stamp: 'm 5/30/2018 18:16:12'!
+isTied
 	self subclassResponsibility.! !
 
 
@@ -728,35 +728,36 @@ TicTacToeState subclass: #GameOverWithDraw
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:50:38'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 15:50:38'!
 hasPlayerOWon
 	^false.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:50:25'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 15:50:25'!
 hasPlayerXWon
 	^false.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:52:29'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 15:52:29'!
 isOver
 	^true.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:25:59'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 16:25:59'!
 isPlayingO
 	^false.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:25:47'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 16:25:47'!
 isPlayingX
 	^false.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:50:11'!
+!GameOverWithDraw methodsFor: 'testing' stamp: 'm 5/30/2018 15:50:11'!
 isTied
 	^true.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 17:39:48'!
+
+!GameOverWithDraw methodsFor: 'game actions' stamp: 'm 5/30/2018 17:39:48'!
 markWithOAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
-!GameOverWithDraw methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 17:37:06'!
+!GameOverWithDraw methodsFor: 'game actions' stamp: 'm 5/30/2018 17:37:06'!
 markWithXAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
@@ -768,35 +769,36 @@ TicTacToeState subclass: #GameOverWithOAsWinner
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:25:49'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 01:25:49'!
 hasPlayerOWon
 	^true.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:26:06'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 01:26:06'!
 hasPlayerXWon
 	^false.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:47:06'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 16:47:06'!
 isOver
 	^true.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:54:50'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 15:54:50'!
 isPlayingO
 	^false.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:54:35'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 15:54:35'!
 isPlayingX
 	^false.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:05:04'!
+!GameOverWithOAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 16:05:04'!
 isTied
 	^false.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:10:05'!
+
+!GameOverWithOAsWinner methodsFor: 'game actions' stamp: 'm 5/30/2018 01:10:05'!
 markWithOAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
-!GameOverWithOAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:39:33'!
+!GameOverWithOAsWinner methodsFor: 'game actions' stamp: 'm 5/30/2018 01:39:33'!
 markWithXAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
@@ -808,35 +810,36 @@ TicTacToeState subclass: #GameOverWithXAsWinner
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:25:17'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 01:25:17'!
 hasPlayerOWon
 	^false.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:55:34'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/29/2018 23:55:34'!
 hasPlayerXWon
 	^true.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:51:54'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 15:51:54'!
 isOver
 	^true.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:54:16'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 15:54:16'!
 isPlayingO
 	^false.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:54:02'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 15:54:02'!
 isPlayingX
 	^false.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:52:42'!
+!GameOverWithXAsWinner methodsFor: 'testing' stamp: 'm 5/30/2018 01:52:42'!
 isTied
 	^false.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:13:32'!
+
+!GameOverWithXAsWinner methodsFor: 'game actions' stamp: 'm 5/30/2018 00:13:32'!
 markWithOAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
-!GameOverWithXAsWinner methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:39:42'!
+!GameOverWithXAsWinner methodsFor: 'game actions' stamp: 'm 5/30/2018 01:39:42'!
 markWithXAt: aPosition on: aTicTacToe 
 	self error: aTicTacToe class canNotPlayWhenGameIsOverErrorMessage.! !
 
@@ -848,37 +851,38 @@ TicTacToeState subclass: #OPlaying
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:27:04'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 01:27:04'!
 hasPlayerOWon
 	^false.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:11:57'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 00:11:57'!
 hasPlayerXWon
 	^false.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:09:20'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 18:09:20'!
 isOver
 	^false.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:53:19'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 15:53:19'!
 isPlayingO
 	^true.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 15:53:02'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 15:53:02'!
 isPlayingX
 	^false.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:53:18'!
+!OPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 01:53:18'!
 isTied
 	^false.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:37:46'!
-markWithOAt: aPosition on: aTicTacToe
-	^ aTicTacToe MarkWithOWhenplayerOIsPlayingAt: aPosition.! !
 
-!OPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:04:07'!
+!OPlaying methodsFor: 'game actions' stamp: 'm 5/31/2018 12:13:35'!
+markWithOAt: aPosition on: aTicTacToe
+	^ aTicTacToe markWithOWhenplayerOIsPlayingAt: aPosition.! !
+
+!OPlaying methodsFor: 'game actions' stamp: 'm 5/31/2018 12:13:08'!
 markWithXAt: aPosition on: aTicTacToe
-	^ aTicTacToe MarkWithXWhenPlayerOIsPlayingAt: aPosition.! !
+	^ aTicTacToe markWithXWhenPlayerOIsPlayingAt: aPosition.! !
 
 
 !classDefinition: #XPlaying category: #'TicTacToe-Test'!
@@ -888,34 +892,35 @@ TicTacToeState subclass: #XPlaying
 	poolDictionaries: ''
 	category: 'TicTacToe-Test'!
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:24:51'!
+!XPlaying methodsFor: 'game actions' stamp: 'm 5/31/2018 12:13:48'!
+markWithOAt: aPosition on: aTicTacToe
+	^ aTicTacToe markWithOWhenPlayerXIsPlayingAt: aPosition.! !
+
+!XPlaying methodsFor: 'game actions' stamp: 'm 5/31/2018 12:12:32'!
+markWithXAt: aPosition on: aTicTacToe
+	^ aTicTacToe markWithXWhenPlayerXIsPlayingAt: aPosition.! !
+
+
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 01:24:51'!
 hasPlayerOWon
 	^false.! !
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 00:11:26'!
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 00:11:26'!
 hasPlayerXWon
 	^false.! !
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 18:06:50'!
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 18:06:50'!
 isOver
 	^false.! !
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:46:42'!
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 01:46:42'!
 isPlayingO
 	^false.! !
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 01:46:12'!
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 01:46:12'!
 isPlayingX
 	^true.! !
 
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/30/2018 16:09:09'!
+!XPlaying methodsFor: 'testing' stamp: 'm 5/30/2018 16:09:09'!
 isTied
 	^false.! !
-
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:38:37'!
-markWithOAt: aPosition on: aTicTacToe
-	^ aTicTacToe MarkWithOWhenPlayerXIsPlayingAt: aPosition.! !
-
-!XPlaying methodsFor: 'as yet unclassified' stamp: 'm 5/29/2018 23:36:49'!
-markWithXAt: aPosition on: aTicTacToe
-	^ aTicTacToe MarkWithXWhenPlayerXIsPlayingAt: aPosition.! !
