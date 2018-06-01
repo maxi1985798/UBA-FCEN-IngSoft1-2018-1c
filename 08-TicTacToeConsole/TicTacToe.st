@@ -105,6 +105,50 @@ test04
 	
 	! !
 
+!TicTacToeConsoleTest methodsFor: 'as yet unclassified' stamp: 'm 6/1/2018 18:34:52'!
+test05
+
+	| game console lines |
+	
+	game _ TicTacToe new.
+	console _ ConsoleLogger new.
+	game register: console.
+	
+	game markWithXAt: 2@2.
+	game markWithOAt: 1@1.
+	game markWithXAt: 3@2.
+	game markWithOAt: 1@2.
+	game markWithXAt: 3@3.
+	game markWithOAt: 3@1.
+	game markWithXAt: 2@1.
+	game markWithOAt: 2@3.
+	game markWithXAt: 1@3.
+	
+	lines _ console lines.
+	
+	self assert: lines size equals: 18.
+	self assert: (lines at: 1) = 'X marcó en 2@2'.
+	self assert: (lines at: 2) = 'Estado: Jugando O'.
+	self assert: (lines at: 3) = 'O marcó en 1@1'.
+	self assert: (lines at: 4) = 'Estado: Jugando X'.
+	self assert: (lines at: 5) = 'X marcó en 3@2'.
+	self assert: (lines at: 6) = 'Estado: Jugando O'.
+	self assert: (lines at: 7) = 'O marcó en 1@2'.
+	self assert: (lines at: 8) = 'Estado: Jugando X'.
+	self assert: (lines at: 9) = 'X marcó en 3@3'.
+	self assert: (lines at: 10) = 'Estado: Jugando O'.
+	self assert: (lines at: 11) = 'O marcó en 3@1'.
+	self assert: (lines at: 12) = 'Estado: Jugando X'.
+	self assert: (lines at: 13) = 'X marcó en 2@1'.
+	self assert: (lines at: 14) = 'Estado: Jugando O'.
+	self assert: (lines at: 15) = 'O marcó en 2@3'.
+	self assert: (lines at: 16) = 'Estado: Jugando X'.
+	self assert: (lines at: 17) = 'X marcó en 1@3'.
+	self assert: (lines at: 18) = 'Estado: Juego terminado - Empate!!'.
+	
+	
+	! !
+
 
 !classDefinition: #TicTacToeTest category: #TicTacToe!
 TestCase subclass: #TicTacToeTest
@@ -533,7 +577,7 @@ initialize
 lines
 	^log.! !
 
-!ConsoleLogger methodsFor: 'as yet unclassified' stamp: 'AM 5/31/2018 20:43:18'!
+!ConsoleLogger methodsFor: 'as yet unclassified' stamp: 'm 6/1/2018 18:38:15'!
 updateWith: aTicTacToe
 
 	aTicTacToe isPlayingO ifTrue: [
@@ -555,7 +599,12 @@ updateWith: aTicTacToe
 		log add:  'O marcó en ', aTicTacToe playerOPositions last asString.
 		log add: 'Estado: Juego terminado - Ganó O!!'.
 		].
-	! !
+	
+	aTicTacToe isTied ifTrue: [
+		log add:  'X marcó en ', aTicTacToe playerXPositions last asString.
+		log add: 'Estado: Juego terminado - Empate!!'.
+		].
+! !
 
 
 !classDefinition: #TicTacToe category: #TicTacToe!
