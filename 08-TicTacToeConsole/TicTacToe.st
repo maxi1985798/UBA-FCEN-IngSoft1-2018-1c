@@ -597,7 +597,7 @@ test01
 	self assert: (lines at: 1) = boardStateText.
 	self assert: (lines at: 2) = playingStateText.! !
 
-!TicTacToeViewTest methodsFor: 'as yet unclassified' stamp: 'AM 6/3/2018 03:05:54'!
+!TicTacToeViewTest methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 18:14:38'!
 test02
 	| game view boardStateText playingStateText lines |
 	game _ TicTacToe new.
@@ -817,6 +817,30 @@ shouldBeTiedWhenNoOneWon
 	^ playerXPositions size = 5 and: [ playerOPositions size = 4 ].! !
 
 
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:43:35'!
+informAGameTiedStateTo: aListener 
+	^aListener gameTiedStateIn: self.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:40:04'!
+informAPlayerOWonStateTo: aListener 
+	^aListener playerOWonStateIn: self .! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:40:51'!
+informAPlayerXWonStateTo: aListener
+	^ aListener playerXWonStateIn: self.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:23:57'!
+informAPlayingOTo: aListener 
+	^aListener playingOStateIn: self.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:33:55'!
+informAPlayingXStateTo: aListener
+	^aListener playingXStateIn: self.! !
+
+!TicTacToe methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 18:59:19'!
+informLasActionOn: aListener
+	^state informActionFrom: self to:aListener.! !
+
 !TicTacToe methodsFor: 'as yet unclassified' stamp: 'AM 6/3/2018 02:28:04'!
 lastPlay
 
@@ -871,7 +895,13 @@ Object subclass: #TicTacToeConsole
 	poolDictionaries: ''
 	category: 'TicTacToe'!
 
-!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'AM 6/3/2018 03:30:31'!
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:43:57'!
+gameTiedStateIn: aTicTacToe 
+	log add:  'X marcó en ', aTicTacToe lastPlay asString.
+	log add: 'Estado: Juego terminado - Empate!!'.
+! !
+
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:29:10'!
 initialize
 	log _ OrderedCollection new.! !
 
@@ -879,9 +909,30 @@ initialize
 lines
 	^log.! !
 
-!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'AM 6/3/2018 02:35:13'!
-updateWith: aTicTacToe
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:41:51'!
+playerOWonStateIn: aTicTacToe 
+	log add:  'O marcó en ', aTicTacToe lastPlay asString.
+	log add: 'Estado: Juego terminado - Ganó O!!'.! !
 
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:40:51'!
+playerXWonStateIn: aTicTacToe
+	log add: 'X marcó en ' , aTicTacToe lastPlay asString.
+	log add: 'Estado: Juego terminado - Ganó X!!'.! !
+
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:24:19'!
+playingOStateIn: aTicTacToe 
+	log add:  'X marcó en ', aTicTacToe lastPlay asString.
+	log add: 'Estado: Jugando O'.! !
+
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:34:35'!
+playingXStateIn: aTicTacToe 
+	log add:  'O marcó en ', aTicTacToe lastPlay asString.
+	log add: 'Estado: Jugando X'.! !
+
+!TicTacToeConsole methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 18:40:42'!
+updateWith: aTicTacToe
+	aTicTacToe informLasActionOn: self.
+"
 	aTicTacToe isPlayingO ifTrue: [
 		log add:  'X marcó en ', aTicTacToe lastPlay asString.
 		log add: 'Estado: Jugando O'.
@@ -905,7 +956,7 @@ updateWith: aTicTacToe
 	aTicTacToe isTied ifTrue: [
 		log add:  'X marcó en ', aTicTacToe lastPlay asString.
 		log add: 'Estado: Juego terminado - Empate!!'.
-		].
+		]."
 ! !
 
 
@@ -1037,6 +1088,11 @@ isTied
 	
 	^true! !
 
+
+!GameTied methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:42:59'!
+informActionFrom: aTicTacToe to: aListener 
+	^aTicTacToe informAGameTiedStateTo: aListener.! !
+
 
 !classDefinition: #PlayerOWon category: #TicTacToe!
 GameOverState subclass: #PlayerOWon
@@ -1058,6 +1114,11 @@ isTied
 	
 	^false! !
 
+
+!PlayerOWon methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:39:28'!
+informActionFrom: aTicTacToe to: aListener 
+	^aTicTacToe informAPlayerOWonStateTo: aListener.! !
+
 
 !classDefinition: #PlayerXWon category: #TicTacToe!
 GameOverState subclass: #PlayerXWon
@@ -1078,6 +1139,11 @@ hasPlayerXWon
 isTied
 	
 	^false! !
+
+
+!PlayerXWon methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:38:35'!
+informActionFrom: aTicTacToe to: aListener
+	^ aTicTacToe informAPlayerXWonStateTo: aListener.! !
 
 
 !classDefinition: #PlayingState category: #TicTacToe!
@@ -1137,6 +1203,11 @@ markWithOAt: aPosition
 markWithXAt: aPosition
 	game markWithXWhenPlayingOAt: aPosition.! !
 
+
+!PlayingO methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:20:39'!
+informActionFrom: aTicTacToe to: aTicTacToeConsole 
+	^aTicTacToe informAPlayingOTo: aTicTacToeConsole.! !
+
 
 !classDefinition: #PlayingX category: #TicTacToe!
 PlayingState subclass: #PlayingX
@@ -1168,6 +1239,11 @@ markWithOAt: aPosition
 !PlayingX methodsFor: 'marking board' stamp: 'HAW 10/26/2017 12:30:46'!
 markWithXAt: aPosition
 	game markWithXWhenPlayingXAt: aPosition.! !
+
+
+!PlayingX methodsFor: 'as yet unclassified' stamp: 'm 6/3/2018 22:33:08'!
+informActionFrom: aTicTacToe to: aListener 
+	^aTicTacToe informAPlayingXStateTo: aListener.! !
 
 
 !classDefinition: #TicTacToeView category: #TicTacToe!
