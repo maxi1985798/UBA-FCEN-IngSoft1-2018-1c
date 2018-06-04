@@ -576,70 +576,44 @@ TestCase subclass: #TicTacToeViewTest
 	poolDictionaries: ''
 	category: 'TicTacToe'!
 
-!TicTacToeViewTest methodsFor: 'tests' stamp: 'AM 6/3/2018 22:59:06'!
-test01
+!TicTacToeViewTest methodsFor: 'tests' stamp: 'm 6/4/2018 14:59:08'!
+test01afterFirstMarkInTheMiddleViewShouldShowAnXInTheMiddle
 	| game view boardStateText playingStateText lines nl |
 	game _ TicTacToe new.
 	view _ TicTacToeView new.
 	game register: view.
-	
 	nl _ Character newLineCharacter asString.
-	boardStateText _ 
-	' | | ', nl,
-	'-----', nl,
-	' |X| ', nl,
-	'-----', nl,
-	' | | '.
-	
+	boardStateText _ ' | | ' , nl , '-----' , nl , ' |X| ' , nl , '-----' , nl , ' | | '.
 	playingStateText _ 'Playing O'.
-
 	game markWithXAt: 2 @ 2.
 	lines _ view lines.
-	
 	self assert: (lines at: 1) = boardStateText.
 	self assert: (lines at: 2) = playingStateText.! !
 
-!TicTacToeViewTest methodsFor: 'tests' stamp: 'AM 6/3/2018 23:00:42'!
-test02
+!TicTacToeViewTest methodsFor: 'tests' stamp: 'm 6/4/2018 15:01:40'!
+test02afterThirdMarkViewShouldShowTwoXsAndOneO
 	| game view boardStateText playingStateText lines nl |
 	game _ TicTacToe new.
 	view _ TicTacToeView new.
 	game register: view.
-	
 	nl _ Character newLineCharacter asString.
-	boardStateText _ 
-	'X| | ', nl,
-	'-----', nl,
-	' |X| ', nl,
-	'-----', nl,
-	'O| | '.
-
+	boardStateText _ 'X| | ' , nl , '-----' , nl , ' |X| ' , nl , '-----' , nl , 'O| | '.
 	playingStateText _ 'Playing O'.
-
-	game markWithXAt: 2@2.
-	game markWithOAt: 1@1.
-	game markWithXAt: 1@3.
-	
+	game markWithXAt: 2 @ 2.
+	game markWithOAt: 1 @ 1.
+	game markWithXAt: 1 @ 3.
 	lines _ view lines.
-	
 	self assert: (lines at: 1) = boardStateText.
 	self assert: (lines at: 2) = playingStateText.! !
 
-!TicTacToeViewTest methodsFor: 'tests' stamp: 'AM 6/3/2018 23:16:45'!
-test03
+!TicTacToeViewTest methodsFor: 'tests' stamp: 'm 6/4/2018 15:05:08'!
+test03afterXWonViewShouldInformXWonAndShowTheBoard
 	| game view lines nl boardStateText playingStateText |
 	game _ TicTacToe new.
 	view _ TicTacToeView new.
 	nl _ Character newLineCharacter asString.
-	boardStateText _ 
-	'X| | ', nl,
-	'-----', nl,
-	'O|X| ', nl,
-	'-----', nl,
-	'O| |X'.
-	
+	boardStateText _ 'X| | ' , nl , '-----' , nl , 'O|X| ' , nl , '-----' , nl , 'O| |X'.
 	playingStateText _ 'X Won!!'.
-	
 	game register: view.
 	game markWithXAt: 2 @ 2.
 	game markWithOAt: 1 @ 1.
@@ -647,63 +621,43 @@ test03
 	game markWithOAt: 1 @ 2.
 	game markWithXAt: 3 @ 1.
 	lines _ view lines.
-	
 	self
 		assert: lines size
 		equals: 2.
 	self assert: (lines at: 1) = boardStateText.
 	self assert: (lines at: 2) = playingStateText.! !
 
-!TicTacToeViewTest methodsFor: 'tests' stamp: 'AM 6/3/2018 23:28:47'!
-test04
+!TicTacToeViewTest methodsFor: 'tests' stamp: 'm 6/4/2018 15:21:36'!
+test04afterOWonViewShouldInformOWonAndShowTheBoard
 	| game view lines nl boardStateText playingStateText |
 	game _ TicTacToe new.
 	view _ TicTacToeView new.
 	nl _ Character newLineCharacter asString.
-	boardStateText _ 
-	'O| |X', nl,
-	'-----', nl,
-	'O|X|X', nl,
-	'-----', nl,
-	'O| | '.
-	
+	boardStateText _ 'O| |X' , nl , '-----' , nl , 'O|X|X' , nl , '-----' , nl , 'O| | '.
 	playingStateText _ 'O Won!!'.
-	
 	game register: view.
-
 	game markWithXAt: 2 @ 2.
 	game markWithOAt: 1 @ 1.
 	game markWithXAt: 3 @ 2.
 	game markWithOAt: 1 @ 2.
 	game markWithXAt: 3 @ 3.
 	game markWithOAt: 1 @ 3.
-	
-	
 	lines _ view lines.
-	
 	self
 		assert: lines size
 		equals: 2.
 	self assert: (lines at: 1) = boardStateText.
 	self assert: (lines at: 2) = playingStateText.! !
 
-!TicTacToeViewTest methodsFor: 'tests' stamp: 'AM 6/3/2018 23:33:26'!
-test05
+!TicTacToeViewTest methodsFor: 'tests' stamp: 'm 6/4/2018 15:24:40'!
+test05afterGameTiedViewShouldInformGameTiedAndShowTheBoardWithTheGameTied
 	| game view lines nl boardStateText playingStateText |
 	game _ TicTacToe new.
 	view _ TicTacToeView new.
 	nl _ Character newLineCharacter asString.
-	boardStateText _ 
-	'X|O|X', nl,
-	'-----', nl,
-	'O|X|X', nl,
-	'-----', nl,
-	'O|X|O'.
-	
+	boardStateText _ 'X|O|X' , nl , '-----' , nl , 'O|X|X' , nl , '-----' , nl , 'O|X|O'.
 	playingStateText _ 'Tied!!'.
-	
 	game register: view.
-
 	game markWithXAt: 2 @ 2.
 	game markWithOAt: 1 @ 1.
 	game markWithXAt: 3 @ 2.
@@ -713,10 +667,7 @@ test05
 	game markWithXAt: 2 @ 1.
 	game markWithOAt: 2 @ 3.
 	game markWithXAt: 1 @ 3.
-	
-	
 	lines _ view lines.
-	
 	self
 		assert: lines size
 		equals: 2.
