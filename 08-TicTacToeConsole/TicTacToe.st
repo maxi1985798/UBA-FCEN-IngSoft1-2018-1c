@@ -5,23 +5,22 @@ TestCase subclass: #TicTacToeConsoleTest
 	poolDictionaries: ''
 	category: 'TicTacToe'!
 
-!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'AM 6/3/2018 02:53:28'!
-test01
+!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'm 6/4/2018 00:46:46'!
+test01afterFirstMarkConsoleShouldInformIsPlayingO
 	| game console lines |
-	
 	game _ TicTacToe new.
 	console _ TicTacToeConsole new.
 	game register: console.
-	
 	game markWithXAt: 2 @ 2.
 	lines _ console lines.
-	
-	self assert: console lines size equals: 2.
+	self
+		assert: console lines size
+		equals: 2.
 	self assert: (lines at: 1) = 'X marcó en 2@2'.
 	self assert: (lines at: 2) = 'Estado: Jugando O'.! !
 
-!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'AM 6/3/2018 02:37:35'!
-test02
+!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'm 6/4/2018 00:47:44'!
+test02afterSecondMarkConsoleShouldInformIsPlayingX
 	| game console lines |
 	game _ TicTacToe new.
 	console _ TicTacToeConsole new.
@@ -37,8 +36,8 @@ test02
 	self assert: (lines at: 3) = 'O marcó en 1@1'.
 	self assert: (lines at: 4) = 'Estado: Jugando X'.! !
 
-!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'AM 6/3/2018 02:37:35'!
-test03
+!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'm 6/4/2018 00:49:09'!
+test03afterXWonConsoleShouldInformXWon
 	| game console lines |
 	game _ TicTacToe new.
 	console _ TicTacToeConsole new.
@@ -63,8 +62,8 @@ test03
 	self assert: (lines at: 9) = 'X marcó en 3@1'.
 	self assert: (lines at: 10) = 'Estado: Juego terminado - Ganó X!!'.! !
 
-!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'AM 6/3/2018 02:37:35'!
-test04
+!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'm 6/4/2018 00:51:27'!
+test04afterOWonConsoleShouldInformOWon
 	| game console lines |
 	game _ TicTacToe new.
 	console _ TicTacToeConsole new.
@@ -92,8 +91,8 @@ test04
 	self assert: (lines at: 11) = 'O marcó en 1@3'.
 	self assert: (lines at: 12) = 'Estado: Juego terminado - Ganó O!!'.! !
 
-!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'AM 6/3/2018 02:37:35'!
-test05
+!TicTacToeConsoleTest methodsFor: 'tests' stamp: 'm 6/4/2018 00:52:05'!
+test05afterGameTiedConsoleShouldInformGameTied
 	| game console lines |
 	game _ TicTacToe new.
 	console _ TicTacToeConsole new.
