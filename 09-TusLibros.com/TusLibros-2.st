@@ -91,71 +91,82 @@ test08CartRemembersTheNumberOfAddedItems
 	cart add: 2 of: self itemSellByTheStore.
 	self assert: (cart occurrencesOf: self itemSellByTheStore) = 2! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/10/2018 18:48:20'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:01:53'!
 test09ACreditCardCanInformItsExpirationDate
-	
-	|validCreditCard cced|
-	
-	cced := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
-	validCreditCard := CreditCard number: 123456789 expirationOn: cced .
-	
+	| validCreditCard cced |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	validCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
 	self assert: validCreditCard expiration = cced.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/10/2018 19:41:19'!
-test10ACashierCanGiveATransactionTicket
-	
-	|expiratedCreditCard cced aCashier aTicket aCart soldProduct |
-	
-	cced := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
-	expiratedCreditCard  := CreditCard number: 123456789 expirationOn: cced .
-	aCart := self createCart.
-	soldProduct := self itemSellByTheStore.
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:02:09'!
+test10ACreditCardCanInformItsNumber
+	| validCreditCard cced |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	validCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
+	self assert: validCreditCard number = 123456789.! !
+
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:08:46'!
+test11ACashierCanGiveATransactionTicketWhenYouBuy1Products
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	expiratedCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
+	aCart _ self createCart.
+	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
-	aCashier := Cashier for: aCart with: expiratedCreditCard.
-	
-	aTicket := aCashier ticket.
+	aCashier _ Cashier
+		for: aCart
+		with: expiratedCreditCard.
+	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 1.
 	self assert: (aTicket list at: 1) product = soldProduct.
 	self assert: (aTicket list at: 1) price = 16.
-	self assert: aTicket total = 16.! !
+	self assert: aTicket total = 16.
+	self assert: aTicket buyer = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/10/2018 22:34:47'!
-test10_1ACashierCanGiveATransactionTicketWhenYouBuy2Products
-	
-	|expiratedCreditCard cced aCashier aTicket aCart soldProduct |
-	
-	cced := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
-	expiratedCreditCard  := CreditCard number: 123456789 expirationOn: cced .
-	aCart := self createCart.
-	soldProduct := self itemSellByTheStore.
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:02:47'!
+test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	expiratedCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
+	aCart _ self createCart.
+	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
 	aCart add: soldProduct.
-	aCashier := Cashier for: aCart with: expiratedCreditCard.
-	
-	aTicket := aCashier ticket.
+	aCashier _ Cashier
+		for: aCart
+		with: expiratedCreditCard.
+	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 2.
 	self assert: (aTicket list at: 1) product = soldProduct.
 	self assert: (aTicket list at: 1) price = 16.
 	self assert: (aTicket list at: 2) product = soldProduct.
 	self assert: (aTicket list at: 2) price = 16.
-	self assert: aTicket total = 32.! !
+	self assert: aTicket total = 32.
+	self assert: aTicket buyer = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/10/2018 19:11:56'!
-test11ACashierMusntMakeACheckoutWithAnExpiratedCreditCard
-	
-	|expiratedCreditCard cced aCashier|
-	
-	cced := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2010).
-	expiratedCreditCard  := CreditCard number: 123456789 expirationOn: cced .
-	aCashier := Cashier for: self createCart with: expiratedCreditCard.
-	
-	self 
-		should: [ aCashier ticket]
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:03:00'!
+test13ACashierMusntMakeACheckoutWithAnExpiratedCreditCard
+	| expiratedCreditCard cced aCashier |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2010).
+	expiratedCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
+	aCashier _ Cashier
+		for: self createCart
+		with: expiratedCreditCard.
+	self
+		should: [ aCashier ticket ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: aCashier class expiratedCreditCardDescription = anError messageText
-			].
-	! !
+			self assert: aCashier class expiratedCreditCardDescription = anError messageText ].! !
 
 
 !CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:48'!
@@ -163,14 +174,16 @@ createCart
 	
 	^Cart acceptingItemsOf: self defaultCatalog! !
 
-!CartTest methodsFor: 'support' stamp: 'm 6/10/2018 19:51:27'!
+!CartTest methodsFor: 'support' stamp: 'm 6/11/2018 11:16:49'!
 defaultCatalog
-
-	| catalog |
-
-	catalog := Dictionary new.
-	catalog at: self itemSellByTheStore put: 16.
-	^ catalog! !
+	| catalogDictionary |
+	catalogDictionary _ Dictionary new.
+	catalogDictionary
+		at: self itemSellByTheStore
+		put: 16.
+	^Catalog newFromDictionary: catalogDictionary.
+	
+	! !
 
 !CartTest methodsFor: 'support' stamp: 'HernanWilkinson 6/17/2013 17:44'!
 itemNotSellByTheStore
@@ -201,10 +214,10 @@ invalidQuantityErrorMessage
 	^'Invalid number of items'! !
 
 
-!Cart methodsFor: 'assertions' stamp: 'm 6/10/2018 19:52:56'!
+!Cart methodsFor: 'assertions' stamp: 'm 6/11/2018 11:18:55'!
 assertIsValidItem: anItem
 
-	(catalog keys includes: anItem) ifFalse: [ self error: self invalidItemErrorMessage ]! !
+	(catalog includes: anItem) ifFalse: [ self error: self invalidItemErrorMessage ]! !
 
 !Cart methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 17:51'!
 assertIsValidQuantity: aQuantity
@@ -250,13 +263,13 @@ add: aQuantity of: anItem
 	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
 
 
-!Cart methodsFor: 'checkout' stamp: 'm 6/10/2018 23:56:06'!
+!Cart methodsFor: 'checkout' stamp: 'm 6/11/2018 11:21:57'!
 generateProductListToSell
 	| aSoldProductsList |
 	aSoldProductsList _ items collect: [ :anItem |
 		SoldProduct
 			product: anItem
-			withPrice: (catalog at: anItem) ].
+			withPrice: (catalog priceFor: anItem) ].
 	^ aSoldProductsList.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -278,12 +291,12 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/10/2018 23:56:06'!
+!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/11/2018 10:28:42'!
 ticket
 	| soldProductsList |
 	creditCard expiration < GregorianMonthOfYear current ifTrue: [ self error: self class expiratedCreditCardDescription ].
 	soldProductsList _ cart generateProductListToSell.
-	^ Ticket newWith: soldProductsList.! !
+	^ Ticket  buyer: creditCard number soldProducts: soldProductsList.! !
 
 
 !Cashier methodsFor: 'initialization' stamp: 'm 6/10/2018 19:06:54'!
@@ -297,13 +310,52 @@ initializeWith: aCart andWith: aCreditCard
 Cashier class
 	instanceVariableNames: ''!
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 19:08:41'!
+!Cashier class methodsFor: 'error descriptions' stamp: 'm 6/10/2018 19:08:41'!
 expiratedCreditCardDescription
 	^'Tarjeta de credito expirada'.! !
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 19:06:16'!
+
+!Cashier class methodsFor: 'instance creation' stamp: 'm 6/10/2018 19:06:16'!
 for: aCart with: aCreditCard 
 	^self new initializeWith: aCart andWith: aCreditCard .! !
+
+
+!classDefinition: #Catalog category: #TusLibros!
+Object subclass: #Catalog
+	instanceVariableNames: 'dictionaryOfProductsAndPrices'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!Catalog methodsFor: 'initialization' stamp: 'm 6/11/2018 11:18:27'!
+initializeFromDictionary: aDictionary 
+	dictionaryOfProductsAndPrices := aDictionary.! !
+
+
+!Catalog methodsFor: 'testing' stamp: 'm 6/11/2018 11:19:40'!
+includes: aProduct 
+	^dictionaryOfProductsAndPrices keys includes: aProduct .! !
+
+
+!Catalog methodsFor: 'accessing' stamp: 'm 6/11/2018 11:24:45'!
+priceFor: aProduct 
+	^dictionaryOfProductsAndPrices at: aProduct ifAbsent: [ self error: self class productNotInCatalogDescription].
+	! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Catalog class' category: #TusLibros!
+Catalog class
+	instanceVariableNames: ''!
+
+!Catalog class methodsFor: 'instance creation' stamp: 'm 6/11/2018 11:17:38'!
+newFromDictionary: aDictionary 
+	^self new initializeFromDictionary: aDictionary .! !
+
+
+!Catalog class methodsFor: 'error descriptions' stamp: 'm 6/11/2018 11:26:02'!
+productNotInCatalogDescription
+	^'El producto no esta en el catalogo'! !
 
 
 !classDefinition: #CreditCard category: #TusLibros!
@@ -319,9 +371,14 @@ initializeWithNumber: aNumber expirationOn: anExpirationMonthOfYear
 	expiration := anExpirationMonthOfYear.! !
 
 
-!CreditCard methodsFor: 'getters' stamp: 'm 6/10/2018 14:43:11'!
+!CreditCard methodsFor: 'accessing' stamp: 'm 6/10/2018 14:43:11'!
 expiration
 	^expiration! !
+
+!CreditCard methodsFor: 'accessing' stamp: 'm 6/11/2018 10:45:45'!
+number
+	
+	^number! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -329,7 +386,7 @@ expiration
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 14:42:04'!
+!CreditCard class methodsFor: 'instance creation' stamp: 'm 6/10/2018 14:42:04'!
 number: aNumber expirationOn: anExpirationMonthOfYear 
 	^self new initializeWithNumber: aNumber expirationOn: anExpirationMonthOfYear.! !
 
@@ -347,11 +404,11 @@ initializeSelling: aProduct withPrice: aPriceNumber
 	price := aPriceNumber! !
 
 
-!SoldProduct methodsFor: 'getters' stamp: 'm 6/10/2018 20:22:47'!
+!SoldProduct methodsFor: 'accesing' stamp: 'm 6/10/2018 20:22:47'!
 price
 	^price! !
 
-!SoldProduct methodsFor: 'getters' stamp: 'm 6/10/2018 20:22:38'!
+!SoldProduct methodsFor: 'accesing' stamp: 'm 6/10/2018 20:22:38'!
 product
 	^product! !
 
@@ -361,17 +418,22 @@ product
 SoldProduct class
 	instanceVariableNames: ''!
 
-!SoldProduct class methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:18:47'!
+!SoldProduct class methodsFor: 'instance creation' stamp: 'm 6/10/2018 20:18:47'!
 product: aProduct withPrice: aPrice
 	^self new initializeSelling: aProduct withPrice: aPrice.! !
 
 
 !classDefinition: #Ticket category: #TusLibros!
 Object subclass: #Ticket
-	instanceVariableNames: 'listOfSoldProducts'
+	instanceVariableNames: 'listOfSoldProducts buyer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!Ticket methodsFor: 'ticket parts' stamp: 'm 6/11/2018 10:49:25'!
+buyer
+	
+	^buyer! !
 
 !Ticket methodsFor: 'ticket parts' stamp: 'm 6/10/2018 20:22:26'!
 list
@@ -384,9 +446,10 @@ total
 	^totalPrice.! !
 
 
-!Ticket methodsFor: 'initialization' stamp: 'm 6/10/2018 20:21:59'!
-initializeWithList: aColectionOfSoldProducts 
-	listOfSoldProducts := aColectionOfSoldProducts.! !
+!Ticket methodsFor: 'initialization' stamp: 'm 6/11/2018 10:49:09'!
+initializeWithBuyer: ccNumber soldProducts: aSoldProductsList 
+	listOfSoldProducts := aSoldProductsList.
+	buyer := ccNumber.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -394,6 +457,6 @@ initializeWithList: aColectionOfSoldProducts
 Ticket class
 	instanceVariableNames: ''!
 
-!Ticket class methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:21:10'!
-newWith: aColectionOfSoldProducts 
-	^self new initializeWithList: aColectionOfSoldProducts.! !
+!Ticket class methodsFor: 'instance creation' stamp: 'm 6/11/2018 10:48:08'!
+buyer: ccNumber soldProducts: aSoldProductsList 
+	^self new initializeWithBuyer: ccNumber soldProducts: aSoldProductsList ! !
