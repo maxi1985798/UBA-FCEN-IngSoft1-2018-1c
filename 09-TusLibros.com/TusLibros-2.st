@@ -250,8 +250,8 @@ add: aQuantity of: anItem
 	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
 
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 22:47:49'!
-generateSoldProductList
+!Cart methodsFor: 'checkout' stamp: 'm 6/10/2018 23:56:06'!
+generateProductListToSell
 	| aSoldProductsList |
 	aSoldProductsList _ items collect: [ :anItem |
 		SoldProduct
@@ -278,17 +278,18 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 19:06:54'!
-initializeWith: aCart andWith: aCreditCard 
-	cart := aCart.
-	creditCard := aCreditCard.! !
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 22:47:49'!
+!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/10/2018 23:56:06'!
 ticket
 	| soldProductsList |
 	creditCard expiration < GregorianMonthOfYear current ifTrue: [ self error: self class expiratedCreditCardDescription ].
-	soldProductsList _ cart generateSoldProductList.
+	soldProductsList _ cart generateProductListToSell.
 	^ Ticket newWith: soldProductsList.! !
+
+
+!Cashier methodsFor: 'initialization' stamp: 'm 6/10/2018 19:06:54'!
+initializeWith: aCart andWith: aCreditCard 
+	cart := aCart.
+	creditCard := aCreditCard.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -312,14 +313,15 @@ Object subclass: #CreditCard
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCard methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 14:43:11'!
-expiration
-	^expiration! !
-
-!CreditCard methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 14:42:55'!
+!CreditCard methodsFor: 'initialization' stamp: 'm 6/10/2018 14:42:55'!
 initializeWithNumber: aNumber expirationOn: anExpirationMonthOfYear 
 	number := aNumber.
 	expiration := anExpirationMonthOfYear.! !
+
+
+!CreditCard methodsFor: 'getters' stamp: 'm 6/10/2018 14:43:11'!
+expiration
+	^expiration! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -339,16 +341,17 @@ Object subclass: #SoldProduct
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!SoldProduct methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:19:47'!
+!SoldProduct methodsFor: 'initialization' stamp: 'm 6/10/2018 20:19:47'!
 initializeSelling: aProduct withPrice: aPriceNumber 
 	product := aProduct.
 	price := aPriceNumber! !
 
-!SoldProduct methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:22:47'!
+
+!SoldProduct methodsFor: 'getters' stamp: 'm 6/10/2018 20:22:47'!
 price
 	^price! !
 
-!SoldProduct methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:22:38'!
+!SoldProduct methodsFor: 'getters' stamp: 'm 6/10/2018 20:22:38'!
 product
 	^product! !
 
@@ -370,19 +373,20 @@ Object subclass: #Ticket
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Ticket methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:21:59'!
-initializeWithList: aColectionOfSoldProducts 
-	listOfSoldProducts := aColectionOfSoldProducts.! !
-
-!Ticket methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:22:26'!
+!Ticket methodsFor: 'ticket parts' stamp: 'm 6/10/2018 20:22:26'!
 list
 	^listOfSoldProducts copy.! !
 
-!Ticket methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 22:33:17'!
+!Ticket methodsFor: 'ticket parts' stamp: 'm 6/10/2018 22:33:17'!
 total
 	|totalPrice|
 	totalPrice := listOfSoldProducts inject: 0 into: [ :partialSum :aSoldProduct | partialSum + aSoldProduct price ].
 	^totalPrice.! !
+
+
+!Ticket methodsFor: 'initialization' stamp: 'm 6/10/2018 20:21:59'!
+initializeWithList: aColectionOfSoldProducts 
+	listOfSoldProducts := aColectionOfSoldProducts.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
