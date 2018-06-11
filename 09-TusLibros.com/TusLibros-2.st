@@ -120,33 +120,34 @@ test10ACreditCardCanInformItsNumber
 		expirationOn: cced.
 	self assert: validCreditCard number = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 15:54:45'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:34:51'!
 test11ACashierCanGiveATransactionTicketWhenYouBuy1Products
-	| expiratedCreditCard cced aCashier aTicket aCart soldProduct transactionDate |
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct aTransactionDate |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
 	expiratedCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
-	transactionDate := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
+	aTransactionDate _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
 	aCart _ self createCart.
 	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
 	aCashier _ Cashier
 		for: aCart
 		with: expiratedCreditCard
-		on: transactionDate.
+		on: aTransactionDate.
 	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 1.
 	self assert: (aTicket list at: 1) product = soldProduct.
 	self assert: (aTicket list at: 1) price = 16.
 	self assert: aTicket total = 16.
-	self assert: aTicket buyer = 123456789.! !
+	self assert: aTicket buyer = 123456789.
+	self assert: aTicket transactionDate = aTransactionDate.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:02:29'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:39:40'!
 test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
-	| expiratedCreditCard cced aCashier aTicket aCart soldProduct transactionDate |
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct aTransactionDate |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
-	transactionDate := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
+	aTransactionDate := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
 	expiratedCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
@@ -155,7 +156,7 @@ test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
 	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
 	aCart add: soldProduct.
-	aCashier _ Cashier for: aCart with: expiratedCreditCard on: transactionDate.
+	aCashier _ Cashier for: aCart with: expiratedCreditCard on: aTransactionDate.
 	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 2.
 	self assert: (aTicket list at: 1) product = soldProduct.
@@ -163,7 +164,8 @@ test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
 	self assert: (aTicket list at: 2) product = soldProduct.
 	self assert: (aTicket list at: 2) price = 16.
 	self assert: aTicket total = 32.
-	self assert: aTicket buyer = 123456789.! !
+	self assert: aTicket buyer = 123456789.
+	self assert: aTicket transactionDate = aTransactionDate.! !
 
 !CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:03:40'!
 test13ACashierMusntMakeACheckoutWithAnExpiratedCreditCard
@@ -303,12 +305,12 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/11/2018 15:58:10'!
+!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/11/2018 16:36:04'!
 ticket
 	| soldProductsList |
 	(creditCard isExpiratedOn: transactionDate) ifTrue: [ self error: self class expiratedCreditCardDescription ].
 	soldProductsList _ cart generateProductListToSell.
-	^ Ticket  buyer: creditCard number soldProducts: soldProductsList.! !
+	^ Ticket  buyer: creditCard number soldProducts: soldProductsList on: transactionDate.! !
 
 
 !Cashier methodsFor: 'initialization' stamp: 'm 6/11/2018 15:57:08'!
@@ -373,7 +375,7 @@ productNotInCatalogDescription
 
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
-	instanceVariableNames: 'expirationMonth number expiration'
+	instanceVariableNames: 'number expiration'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -439,7 +441,7 @@ product: aProduct withPrice: aPrice
 
 !classDefinition: #Ticket category: #TusLibros!
 Object subclass: #Ticket
-	instanceVariableNames: 'listOfSoldProducts buyer'
+	instanceVariableNames: 'listOfSoldProducts buyer transactionDate'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -460,10 +462,16 @@ total
 	^totalPrice.! !
 
 
-!Ticket methodsFor: 'initialization' stamp: 'm 6/11/2018 10:49:09'!
-initializeWithBuyer: ccNumber soldProducts: aSoldProductsList 
+!Ticket methodsFor: 'initialization' stamp: 'm 6/11/2018 16:38:16'!
+initializeWithBuyer: ccNumber soldProducts: aSoldProductsList on: aGregorianMonthOfYear 
 	listOfSoldProducts := aSoldProductsList.
-	buyer := ccNumber.! !
+	buyer := ccNumber.
+	transactionDate := aGregorianMonthOfYear.! !
+
+
+!Ticket methodsFor: 'accessing' stamp: 'm 6/11/2018 16:35:13'!
+transactionDate
+	^transactionDate.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -471,6 +479,6 @@ initializeWithBuyer: ccNumber soldProducts: aSoldProductsList
 Ticket class
 	instanceVariableNames: ''!
 
-!Ticket class methodsFor: 'instance creation' stamp: 'm 6/11/2018 10:48:08'!
-buyer: ccNumber soldProducts: aSoldProductsList 
-	^self new initializeWithBuyer: ccNumber soldProducts: aSoldProductsList ! !
+!Ticket class methodsFor: 'instance creation' stamp: 'm 6/11/2018 16:37:06'!
+buyer: ccNumber soldProducts: aSoldProductsList on: aGregorianMonthOfYear 
+	^self new initializeWithBuyer: ccNumber soldProducts: aSoldProductsList on: aGregorianMonthOfYear.! !
