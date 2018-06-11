@@ -250,13 +250,14 @@ add: aQuantity of: anItem
 	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
 
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:14:57'!
-generateTicket
-	| aTicket aSoldProductsList |
-
-	aSoldProductsList := items collect: [ :anItem | SoldProduct product: anItem withPrice: (catalog at: anItem)]. 
-	aTicket := Ticket newWith: aSoldProductsList.
-	^aTicket.! !
+!Cart methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 22:47:49'!
+generateSoldProductList
+	| aSoldProductsList |
+	aSoldProductsList _ items collect: [ :anItem |
+		SoldProduct
+			product: anItem
+			withPrice: (catalog at: anItem) ].
+	^ aSoldProductsList.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -282,11 +283,12 @@ initializeWith: aCart andWith: aCreditCard
 	cart := aCart.
 	creditCard := aCreditCard.! !
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 20:07:40'!
+!Cashier methodsFor: 'as yet unclassified' stamp: 'm 6/10/2018 22:47:49'!
 ticket
-	(creditCard expiration < GregorianMonthOfYear current) ifTrue: [self error: self class expiratedCreditCardDescription].
-	
-	^cart generateTicket.! !
+	| soldProductsList |
+	creditCard expiration < GregorianMonthOfYear current ifTrue: [ self error: self class expiratedCreditCardDescription ].
+	soldProductsList _ cart generateSoldProductList.
+	^ Ticket newWith: soldProductsList.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
