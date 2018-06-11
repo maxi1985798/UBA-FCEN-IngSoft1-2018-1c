@@ -91,14 +91,25 @@ test08CartRemembersTheNumberOfAddedItems
 	cart add: 2 of: self itemSellByTheStore.
 	self assert: (cart occurrencesOf: self itemSellByTheStore) = 2! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:01:53'!
-test09ACreditCardCanInformItsExpirationDate
-	| validCreditCard cced |
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:01:00'!
+test09ACreditCardCanInformIfItIsExpirated
+	| validCreditCard cced afterToCced |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	afterToCced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2022).
 	validCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
-	self assert: validCreditCard expiration = cced.! !
+	self assert: (validCreditCard isExpiratedOn: afterToCced).! !
+
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:00:50'!
+test09ACreditCardCanInformIfItIsNotExpirated
+	| validCreditCard cced previousToCced |
+	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	previousToCced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
+	validCreditCard _ CreditCard
+		number: 123456789
+		expirationOn: cced.
+	self deny: (validCreditCard isExpiratedOn: previousToCced).! !
 
 !CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:02:09'!
 test10ACreditCardCanInformItsNumber
@@ -109,19 +120,21 @@ test10ACreditCardCanInformItsNumber
 		expirationOn: cced.
 	self assert: validCreditCard number = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:08:46'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 15:54:45'!
 test11ACashierCanGiveATransactionTicketWhenYouBuy1Products
-	| expiratedCreditCard cced aCashier aTicket aCart soldProduct |
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct transactionDate |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
 	expiratedCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
+	transactionDate := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
 	aCart _ self createCart.
 	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
 	aCashier _ Cashier
 		for: aCart
-		with: expiratedCreditCard.
+		with: expiratedCreditCard
+		on: transactionDate.
 	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 1.
 	self assert: (aTicket list at: 1) product = soldProduct.
@@ -129,20 +142,20 @@ test11ACashierCanGiveATransactionTicketWhenYouBuy1Products
 	self assert: aTicket total = 16.
 	self assert: aTicket buyer = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:02:47'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:02:29'!
 test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
-	| expiratedCreditCard cced aCashier aTicket aCart soldProduct |
+	| expiratedCreditCard cced aCashier aTicket aCart soldProduct transactionDate |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2020).
+	transactionDate := GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2019).
 	expiratedCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
+	
 	aCart _ self createCart.
 	soldProduct _ self itemSellByTheStore.
 	aCart add: soldProduct.
 	aCart add: soldProduct.
-	aCashier _ Cashier
-		for: aCart
-		with: expiratedCreditCard.
+	aCashier _ Cashier for: aCart with: expiratedCreditCard on: transactionDate.
 	aTicket _ aCashier ticket.
 	self assert: aTicket list size = 2.
 	self assert: (aTicket list at: 1) product = soldProduct.
@@ -152,16 +165,15 @@ test12ACashierCanGiveATransactionTicketWhenYouBuy2Products
 	self assert: aTicket total = 32.
 	self assert: aTicket buyer = 123456789.! !
 
-!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 11:03:00'!
+!CartTest methodsFor: 'tests' stamp: 'm 6/11/2018 16:03:40'!
 test13ACashierMusntMakeACheckoutWithAnExpiratedCreditCard
-	| expiratedCreditCard cced aCashier |
+	| expiratedCreditCard cced aCashier transactionDate |
 	cced _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2010).
+	transactionDate _ GregorianMonthOfYear februaryOf: (GregorianYear createYear: 2022).
 	expiratedCreditCard _ CreditCard
 		number: 123456789
 		expirationOn: cced.
-	aCashier _ Cashier
-		for: self createCart
-		with: expiratedCreditCard.
+	aCashier _ Cashier for: self createCart with: expiratedCreditCard on: transactionDate.
 	self
 		should: [ aCashier ticket ]
 		raise: Error - MessageNotUnderstood
@@ -286,23 +298,24 @@ acceptingItemsOf: aCatalog
 
 !classDefinition: #Cashier category: #TusLibros!
 Object subclass: #Cashier
-	instanceVariableNames: 'cart creditCard'
+	instanceVariableNames: 'cart creditCard transactionDate'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/11/2018 10:28:42'!
+!Cashier methodsFor: 'ticket of purchase' stamp: 'm 6/11/2018 15:58:10'!
 ticket
 	| soldProductsList |
-	creditCard expiration < GregorianMonthOfYear current ifTrue: [ self error: self class expiratedCreditCardDescription ].
+	(creditCard isExpiratedOn: transactionDate) ifTrue: [ self error: self class expiratedCreditCardDescription ].
 	soldProductsList _ cart generateProductListToSell.
 	^ Ticket  buyer: creditCard number soldProducts: soldProductsList.! !
 
 
-!Cashier methodsFor: 'initialization' stamp: 'm 6/10/2018 19:06:54'!
-initializeWith: aCart andWith: aCreditCard 
+!Cashier methodsFor: 'initialization' stamp: 'm 6/11/2018 15:57:08'!
+initializeWith: aCart andWith: aCreditCard on: aGregorianMonthOfYear 
 	cart := aCart.
-	creditCard := aCreditCard.! !
+	creditCard := aCreditCard.
+	transactionDate := aGregorianMonthOfYear.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -315,9 +328,9 @@ expiratedCreditCardDescription
 	^'Tarjeta de credito expirada'.! !
 
 
-!Cashier class methodsFor: 'instance creation' stamp: 'm 6/10/2018 19:06:16'!
-for: aCart with: aCreditCard 
-	^self new initializeWith: aCart andWith: aCreditCard .! !
+!Cashier class methodsFor: 'instance creation' stamp: 'm 6/11/2018 15:56:05'!
+for: aCart with: aCreditCard on: aGregorianMonthOfYear 
+	^self new initializeWith: aCart andWith: aCreditCard on: aGregorianMonthOfYear.! !
 
 
 !classDefinition: #Catalog category: #TusLibros!
@@ -371,14 +384,15 @@ initializeWithNumber: aNumber expirationOn: anExpirationMonthOfYear
 	expiration := anExpirationMonthOfYear.! !
 
 
-!CreditCard methodsFor: 'accessing' stamp: 'm 6/10/2018 14:43:11'!
-expiration
-	^expiration! !
-
 !CreditCard methodsFor: 'accessing' stamp: 'm 6/11/2018 10:45:45'!
 number
 	
 	^number! !
+
+
+!CreditCard methodsFor: 'testing' stamp: 'm 6/11/2018 15:59:36'!
+isExpiratedOn: aGregorianMonthOfYear 
+	^expiration < aGregorianMonthOfYear.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
