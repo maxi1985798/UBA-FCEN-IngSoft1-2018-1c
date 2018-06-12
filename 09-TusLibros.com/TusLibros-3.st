@@ -114,24 +114,29 @@ setUp
 
 	testObjectsFactory := StoreTestObjectsFactory new.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:41'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:56:19'!
 test01CanNotCheckoutAnEmptyCart
 
-	| salesBook |
+	| salesBook aNotExpiredCreditCard anEverythingIsOkMerchantProcesor debitsOfANotExpiredCreditCard |
 	
 	salesBook := OrderedCollection new.
+	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
+	aNotExpiredCreditCard := testObjectsFactory expiredCreditCard.
 	self 
 		should: [ Cashier 
 			toCheckout: testObjectsFactory createCart 
-			charging: testObjectsFactory notExpiredCreditCard 
+			charging: aNotExpiredCreditCard 
 			on: testObjectsFactory today
-			registeringOn:  salesBook ]
+			registeringOn:  salesBook
+			verifingWith: anEverythingIsOkMerchantProcesor. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = Cashier cartCanNotBeEmptyErrorMessage.
-			self assert: salesBook isEmpty ]! !
+			self assert: salesBook isEmpty.
+			debitsOfANotExpiredCreditCard := anEverythingIsOkMerchantProcesor debitsOf: aNotExpiredCreditCard.
+			self assert: debitsOfANotExpiredCreditCard size = 0 ]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:43'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:52:32'!
 test02CalculatedTotalIsCorrect
 
 	| cart cashier |
@@ -139,30 +144,40 @@ test02CalculatedTotalIsCorrect
 	cart := testObjectsFactory createCart.
 	cart add: 2 of: testObjectsFactory itemSellByTheStore.
 	
-	cashier :=  Cashier toCheckout: cart charging: testObjectsFactory notExpiredCreditCard on: testObjectsFactory today registeringOn: OrderedCollection new.
+	cashier :=  Cashier 
+					toCheckout: cart 
+					charging: testObjectsFactory notExpiredCreditCard 
+					on: testObjectsFactory today 
+					registeringOn: OrderedCollection new 
+					verifingWith: self anEverythingIsOkMerchantProcesor.
 	self assert: cashier checkOut = (testObjectsFactory itemSellByTheStorePrice * 2)! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:45'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:50:44'!
 test03CanNotCheckoutWithAnExpiredCreditCart
 
-	| cart salesBook |
+	| cart salesBook anEverythingIsOkMerchantProcesor anExpiredCreditCard debitsOfAnExpiredCreditCard|
 
 	cart := testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook := OrderedCollection new.
+	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
+	anExpiredCreditCard := testObjectsFactory expiredCreditCard.
 	
 	self
 		should: [ Cashier 
 				toCheckout: cart 
-				charging: testObjectsFactory expiredCreditCard 
+				charging: anExpiredCreditCard 
 				on: testObjectsFactory today
-				registeringOn: salesBook ]
+				registeringOn: salesBook
+				verifingWith: anEverythingIsOkMerchantProcesor ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError | 
+			debitsOfAnExpiredCreditCard := anEverythingIsOkMerchantProcesor debitsOf: anExpiredCreditCard.
 			self assert: anError messageText = Cashier canNotChargeAnExpiredCreditCardErrorMessage.
-			self assert: salesBook isEmpty ]! !
+			self assert: salesBook isEmpty.
+			self assert: debitsOfAnExpiredCreditCard size = 0]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:45'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 15:42:51'!
 test04CheckoutRegistersASale
 
 	| cart cashier salesBook total |
@@ -175,7 +190,8 @@ test04CheckoutRegistersASale
 		toCheckout: cart 
 		charging: testObjectsFactory notExpiredCreditCard
 		on: testObjectsFactory today
-		registeringOn: salesBook.
+		registeringOn: salesBook
+		verifingWith: self anEverythingIsOkMerchantProcesor.
 	total := cashier checkOut.
 					
 	self assert: salesBook notEmpty.
@@ -203,6 +219,50 @@ test05xxxxxxxxxxxxxxx
 	self assert: salesBook first total = total.
 	self assert: (debitsOfANotExpiredCreditCard includes: total).
 	self assert: debitsOfANotExpiredCreditCard size = 1.! !
+
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 18:00:36'!
+test06xxxxxxxxxconsultarx
+	| cart salesBook anExpiredCreditCard debitsOfAnExpiredCreditCard aCreditCardExpiredVerifierMerchantProcesor |
+	cart _ testObjectsFactory createCart.
+	cart add: testObjectsFactory itemSellByTheStore.
+	salesBook _ OrderedCollection new.
+	aCreditCardExpiredVerifierMerchantProcesor _ self aCreditCardExpiredVerifierMerchantProcesor.
+	anExpiredCreditCard _ testObjectsFactory expiredCreditCard.
+	self
+		should: [
+			Cashier
+				toCheckout: cart
+				charging: anExpiredCreditCard
+				on: testObjectsFactory today
+				registeringOn: salesBook
+				verifingWith: aCreditCardExpiredVerifierMerchantProcesor ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			debitsOfAnExpiredCreditCard _ aCreditCardExpiredVerifierMerchantProcesor debitsOf: anExpiredCreditCard.
+			self assert: anError messageText = Cashier canNotChargeAnExpiredCreditCardErrorMessage.
+			self assert: salesBook isEmpty.
+			self assert: debitsOfAnExpiredCreditCard size = 0 ].! !
+
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 18:18:06'!
+test07xxxxxxxxxxxxxxx
+	| cart cashier salesBook total aNotExpiredCreditCard debitsFromCard anNotEnoughCashMerchantProcesor |
+	cart _ testObjectsFactory createCart.
+	cart add: testObjectsFactory itemSellByTheStore.
+	salesBook _ OrderedCollection new.
+	anNotEnoughCashMerchantProcesor _ self notEnoughCashMerchantProcesor.
+	aNotExpiredCreditCard _ testObjectsFactory notExpiredCreditCard.
+	cashier _ Cashier
+		toCheckout: cart
+		charging: aNotExpiredCreditCard
+		on: testObjectsFactory today
+		registeringOn: salesBook
+		verifingWith: anNotEnoughCashMerchantProcesor.
+	total _ cashier checkOut.
+	debitsFromCard _ anNotEnoughCashMerchantProcesor debitsOf: aNotExpiredCreditCard.
+	self assert: salesBook notEmpty.
+	self assert: salesBook first total = total.
+	self assert: (debitsFromCard includes: total).
+	self assert: debitsFromCard size = 1.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
