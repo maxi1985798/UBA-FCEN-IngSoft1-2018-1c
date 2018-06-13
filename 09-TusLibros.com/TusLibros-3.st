@@ -100,7 +100,7 @@ setUp
 
 !classDefinition: #CashierTest category: #TusLibros!
 TestCase subclass: #CashierTest
-	instanceVariableNames: 'testObjectsFactory'
+	instanceVariableNames: 'testObjectsFactory anExpiredCreditCard aNotExpiredCreditCard anEverythingIsOkMerchantProcesor testVar anNotEnoughCashMerchantProcesor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -109,19 +109,26 @@ TestCase subclass: #CashierTest
 anEverythingIsOkMerchantProcesor
 	^EverythingIsOkMerchantProcesor newWith: Dictionary new.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'HernanWilkinson 6/17/2013 18:11'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:12:45'!
+notEnoughCashMerchantProcesor
+	^NotEnoughCashMerchantProcesor newWith: Dictionary new.! !
+
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:03:28'!
 setUp 
 
-	testObjectsFactory := StoreTestObjectsFactory new.! !
+	testObjectsFactory := StoreTestObjectsFactory new.
+	anExpiredCreditCard _ testObjectsFactory expiredCreditCard.
+	aNotExpiredCreditCard _ testObjectsFactory notExpiredCreditCard.
+	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
+	anNotEnoughCashMerchantProcesor _ self notEnoughCashMerchantProcesor.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:56:19'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:44:47'!
 test01CanNotCheckoutAnEmptyCart
 
-	| salesBook aNotExpiredCreditCard anEverythingIsOkMerchantProcesor debitsOfANotExpiredCreditCard |
+	| salesBook debitsOfANotExpiredCreditCard |
 	
 	salesBook := OrderedCollection new.
-	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
-	aNotExpiredCreditCard := testObjectsFactory expiredCreditCard.
+
 	self 
 		should: [ Cashier 
 			toCheckout: testObjectsFactory createCart 
@@ -136,32 +143,30 @@ test01CanNotCheckoutAnEmptyCart
 			debitsOfANotExpiredCreditCard := anEverythingIsOkMerchantProcesor debitsOf: aNotExpiredCreditCard.
 			self assert: debitsOfANotExpiredCreditCard size = 0 ]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:52:32'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:44:53'!
 test02CalculatedTotalIsCorrect
 
 	| cart cashier |
 	
 	cart := testObjectsFactory createCart.
 	cart add: 2 of: testObjectsFactory itemSellByTheStore.
-	
+
 	cashier :=  Cashier 
 					toCheckout: cart 
 					charging: testObjectsFactory notExpiredCreditCard 
 					on: testObjectsFactory today 
 					registeringOn: OrderedCollection new 
-					verifingWith: self anEverythingIsOkMerchantProcesor.
+					verifingWith: anEverythingIsOkMerchantProcesor.
 	self assert: cashier checkOut = (testObjectsFactory itemSellByTheStorePrice * 2)! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 17:50:44'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:39:03'!
 test03CanNotCheckoutWithAnExpiredCreditCart
 
-	| cart salesBook anEverythingIsOkMerchantProcesor anExpiredCreditCard debitsOfAnExpiredCreditCard|
+	| cart salesBook debitsOfAnExpiredCreditCard|
 
 	cart := testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook := OrderedCollection new.
-	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
-	anExpiredCreditCard := testObjectsFactory expiredCreditCard.
 	
 	self
 		should: [ Cashier 
@@ -177,7 +182,7 @@ test03CanNotCheckoutWithAnExpiredCreditCart
 			self assert: salesBook isEmpty.
 			self assert: debitsOfAnExpiredCreditCard size = 0]! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 15:42:51'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:39:18'!
 test04CheckoutRegistersASale
 
 	| cart cashier salesBook total |
@@ -191,22 +196,22 @@ test04CheckoutRegistersASale
 		charging: testObjectsFactory notExpiredCreditCard
 		on: testObjectsFactory today
 		registeringOn: salesBook
-		verifingWith: self anEverythingIsOkMerchantProcesor.
+		verifingWith: anEverythingIsOkMerchantProcesor.
 	total := cashier checkOut.
 					
 	self assert: salesBook notEmpty.
 	self assert: salesBook first total = total.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:56:37'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:32:08'!
 test05xxxxxxxxxxxxxxx
 
-	| cart cashier salesBook total anEverythingIsOkMerchantProcesor aNotExpiredCreditCard debitsOfANotExpiredCreditCard |
+	| cart cashier salesBook total anEverythingIsOkMerchantProcesor debitsOfANotExpiredCreditCard |
 
 	cart := testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook := OrderedCollection new.
  	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
-	aNotExpiredCreditCard := testObjectsFactory notExpiredCreditCard.
+	
 	cashier:= Cashier 
 		toCheckout: cart 
 		charging: aNotExpiredCreditCard
@@ -220,14 +225,13 @@ test05xxxxxxxxxxxxxxx
 	self assert: (debitsOfANotExpiredCreditCard includes: total).
 	self assert: debitsOfANotExpiredCreditCard size = 1.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 18:00:36'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:30:11'!
 test06xxxxxxxxxconsultarx
-	| cart salesBook anExpiredCreditCard debitsOfAnExpiredCreditCard aCreditCardExpiredVerifierMerchantProcesor |
+	| cart salesBook debitsOfAnExpiredCreditCard aCreditCardExpiredVerifierMerchantProcesor |
 	cart _ testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook _ OrderedCollection new.
 	aCreditCardExpiredVerifierMerchantProcesor _ self aCreditCardExpiredVerifierMerchantProcesor.
-	anExpiredCreditCard _ testObjectsFactory expiredCreditCard.
 	self
 		should: [
 			Cashier
@@ -243,26 +247,32 @@ test06xxxxxxxxxconsultarx
 			self assert: salesBook isEmpty.
 			self assert: debitsOfAnExpiredCreditCard size = 0 ].! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/12/2018 18:18:06'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:29:05'!
 test07xxxxxxxxxxxxxxx
-	| cart cashier salesBook total aNotExpiredCreditCard debitsFromCard anNotEnoughCashMerchantProcesor |
+	| cart cashier salesBook debitsFromCard saleTotal |
 	cart _ testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook _ OrderedCollection new.
-	anNotEnoughCashMerchantProcesor _ self notEnoughCashMerchantProcesor.
-	aNotExpiredCreditCard _ testObjectsFactory notExpiredCreditCard.
+	saleTotal := testObjectsFactory itemSellByTheStorePrice.
 	cashier _ Cashier
 		toCheckout: cart
 		charging: aNotExpiredCreditCard
 		on: testObjectsFactory today
 		registeringOn: salesBook
-		verifingWith: anNotEnoughCashMerchantProcesor.
-	total _ cashier checkOut.
-	debitsFromCard _ anNotEnoughCashMerchantProcesor debitsOf: aNotExpiredCreditCard.
-	self assert: salesBook notEmpty.
-	self assert: salesBook first total = total.
-	self assert: (debitsFromCard includes: total).
-	self assert: debitsFromCard size = 1.! !
+		verifingWith: anNotEnoughCashMerchantProcesor. 
+	self
+		should: [ cashier checkOut. ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Cashier canNotChargeANotEnoughCashCreditCardErrorMessage.
+			debitsFromCard _ anNotEnoughCashMerchantProcesor debitsOf: aNotExpiredCreditCard.
+			self assert: salesBook isEmpty.
+			self assert: (debitsFromCard includes: saleTotal).
+			self assert: debitsFromCard size = 1. ].
+		
+	
+
+	! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -425,6 +435,10 @@ cartCanNotBeEmptyErrorMessage
 	^'Can not check out an empty cart'! !
 
 
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:34:06'!
+canNotChargeANotEnoughCashCreditCardErrorMessage
+	^MerchantProcesorInterface notEnoughCashMessageError.! !
+
 !Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:27:15'!
 toCheckout: aCart charging: aCreditCard on: aDate registeringOn: aSalesBook verifingWith: aMerchantProcesor 
 	self assertIsNotEmpty: aCart.
@@ -462,9 +476,27 @@ expiringOn: aMonth
 	^self new initializeExpiringOn: aMonth! !
 
 
-!classDefinition: #EverythingIsOkMerchantProcesor category: #TusLibros!
-Object subclass: #EverythingIsOkMerchantProcesor
+!classDefinition: #MerchantProcesorInterface category: #TusLibros!
+Object subclass: #MerchantProcesorInterface
 	instanceVariableNames: 'debits'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MerchantProcesorInterface class' category: #TusLibros!
+MerchantProcesorInterface class
+	instanceVariableNames: ''!
+
+!MerchantProcesorInterface class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:32:19'!
+notEnoughCashMessageError
+	^'Rechazado por no tener dinero'.! !
+
+
+!classDefinition: #EverythingIsOkMerchantProcesor category: #TusLibros!
+MerchantProcesorInterface subclass: #EverythingIsOkMerchantProcesor
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -492,6 +524,41 @@ EverythingIsOkMerchantProcesor class
 	instanceVariableNames: ''!
 
 !EverythingIsOkMerchantProcesor class methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:53:51'!
+newWith: aDictionary 
+	^self new initializeWith: aDictionary.! !
+
+
+!classDefinition: #NotEnoughCashMerchantProcesor category: #TusLibros!
+MerchantProcesorInterface subclass: #NotEnoughCashMerchantProcesor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:22:44'!
+debit: anAmount from: aCreditCard 
+	| creditCardDebits |
+	creditCardDebits := debits at: aCreditCard ifAbsentPut: [ OrderedCollection new ].
+	creditCardDebits add: anAmount .
+	self error: self class notEnoughCashMessageError.! !
+
+!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:11:45'!
+debitsOf: aCreditCard 
+	| debitsAmounts |
+	debitsAmounts := debits at: aCreditCard ifAbsent: [ OrderedCollection new].
+	^debitsAmounts.! !
+
+!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:11:56'!
+initializeWith: aDictionary 
+	debits := aDictionary.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'NotEnoughCashMerchantProcesor class' category: #TusLibros!
+NotEnoughCashMerchantProcesor class
+	instanceVariableNames: ''!
+
+!NotEnoughCashMerchantProcesor class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:12:09'!
 newWith: aDictionary 
 	^self new initializeWith: aDictionary.! !
 
