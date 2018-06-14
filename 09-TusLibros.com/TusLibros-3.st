@@ -100,10 +100,15 @@ setUp
 
 !classDefinition: #CashierTest category: #TusLibros!
 TestCase subclass: #CashierTest
-	instanceVariableNames: 'testObjectsFactory anExpiredCreditCard aNotExpiredCreditCard anEverythingIsOkMerchantProcesor testVar anNotEnoughCashMerchantProcesor'
+	instanceVariableNames: 'testObjectsFactory anExpiredCreditCard aNotExpiredCreditCard anEverythingIsOkMerchantProcesor testVar anNotEnoughCashMerchantProcesor aDisconnectedMerchantProcesor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 01:29:08'!
+aDisconnectedMerchantProcesor
+	
+	^DisconnectedMerchantProcesor newWith: Dictionary new.! !
 
 !CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:53:20'!
 anEverythingIsOkMerchantProcesor
@@ -113,14 +118,15 @@ anEverythingIsOkMerchantProcesor
 notEnoughCashMerchantProcesor
 	^NotEnoughCashMerchantProcesor newWith: Dictionary new.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:03:28'!
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 01:12:48'!
 setUp 
 
 	testObjectsFactory := StoreTestObjectsFactory new.
 	anExpiredCreditCard _ testObjectsFactory expiredCreditCard.
 	aNotExpiredCreditCard _ testObjectsFactory notExpiredCreditCard.
 	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
-	anNotEnoughCashMerchantProcesor _ self notEnoughCashMerchantProcesor.! !
+	anNotEnoughCashMerchantProcesor _ self notEnoughCashMerchantProcesor.
+	aDisconnectedMerchantProcesor := self aDisconnectedMerchantProcesor! !
 
 !CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:44:47'!
 test01CanNotCheckoutAnEmptyCart
@@ -202,15 +208,14 @@ test04CheckoutRegistersASale
 	self assert: salesBook notEmpty.
 	self assert: salesBook first total = total.! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 10:32:08'!
-test05xxxxxxxxxxxxxxx
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 00:01:20'!
+test05CashierMustUseMerchantProcesorToCheckout
 
-	| cart cashier salesBook total anEverythingIsOkMerchantProcesor debitsOfANotExpiredCreditCard |
+	| cart cashier salesBook total  debitsOfANotExpiredCreditCard |
 
 	cart := testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
 	salesBook := OrderedCollection new.
- 	anEverythingIsOkMerchantProcesor := self anEverythingIsOkMerchantProcesor.
 	
 	cashier:= Cashier 
 		toCheckout: cart 
@@ -247,8 +252,8 @@ test06xxxxxxxxxconsultarx
 			self assert: salesBook isEmpty.
 			self assert: debitsOfAnExpiredCreditCard size = 0 ].! !
 
-!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:29:05'!
-test07xxxxxxxxxxxxxxx
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 23:59:22'!
+test07CannotMakeAPurchaseIfCreditCardDoesntHaveEnoughCash
 	| cart cashier salesBook debitsFromCard saleTotal |
 	cart _ testObjectsFactory createCart.
 	cart add: testObjectsFactory itemSellByTheStore.
@@ -273,6 +278,29 @@ test07xxxxxxxxxxxxxxx
 	
 
 	! !
+
+!CashierTest methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 00:18:59'!
+test08CanNotMakeAPurchaseIfMerchantProcesorIsDisconected
+	| cart cashier salesBook debitsFromCard saleTotal |
+	cart _ testObjectsFactory createCart.
+	cart add: testObjectsFactory itemSellByTheStore.
+	salesBook _ OrderedCollection new.
+	saleTotal _ testObjectsFactory itemSellByTheStorePrice.
+	cashier _ Cashier
+		toCheckout: cart
+		charging: aNotExpiredCreditCard
+		on: testObjectsFactory today
+		registeringOn: salesBook
+		verifingWith: aDisconnectedMerchantProcesor.
+	self
+		should: [ cashier checkOut ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Cashier merchantProcesorDisconnectedErrorMessage.
+			debitsFromCard _ aDisconnectedMerchantProcesor debitsOf: aNotExpiredCreditCard.
+			self assert: salesBook isEmpty.
+			self assert: (debitsFromCard includes: saleTotal).
+			self assert: debitsFromCard size = 1 ].! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -435,9 +463,13 @@ cartCanNotBeEmptyErrorMessage
 	^'Can not check out an empty cart'! !
 
 
-!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:34:06'!
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:04:52'!
 canNotChargeANotEnoughCashCreditCardErrorMessage
-	^MerchantProcesorInterface notEnoughCashMessageError.! !
+	^ MerchantProcesorInterfaceMock notEnoughCashMessageError.! !
+
+!Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:04:52'!
+merchantProcesorDisconnectedErrorMessage
+	^ MerchantProcesorInterfaceMock disconnectedMerchantProcesorMessageError.! !
 
 !Cashier class methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:27:15'!
 toCheckout: aCart charging: aCreditCard on: aDate registeringOn: aSalesBook verifingWith: aMerchantProcesor 
@@ -476,91 +508,88 @@ expiringOn: aMonth
 	^self new initializeExpiringOn: aMonth! !
 
 
-!classDefinition: #MerchantProcesorInterface category: #TusLibros!
-Object subclass: #MerchantProcesorInterface
+!classDefinition: #MerchantProcesorInterfaceMock category: #TusLibros!
+Object subclass: #MerchantProcesorInterfaceMock
 	instanceVariableNames: 'debits'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'MerchantProcesorInterface class' category: #TusLibros!
-MerchantProcesorInterface class
-	instanceVariableNames: ''!
-
-!MerchantProcesorInterface class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:32:19'!
-notEnoughCashMessageError
-	^'Rechazado por no tener dinero'.! !
-
-
-!classDefinition: #EverythingIsOkMerchantProcesor category: #TusLibros!
-MerchantProcesorInterface subclass: #EverythingIsOkMerchantProcesor
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!EverythingIsOkMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 20:04:09'!
-debit: anAmount from: aCreditCard 
-	| creditCardDebits |
-	creditCardDebits := debits at: aCreditCard ifAbsentPut: [ OrderedCollection new ].
-	creditCardDebits add: anAmount .! !
-
-!EverythingIsOkMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:58:18'!
-debitsOf: aCreditCard 
-	| debitsAmounts |
-	debitsAmounts := debits at: aCreditCard ifAbsent: [ OrderedCollection new].
-	^debitsAmounts.! !
-
-!EverythingIsOkMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:54:11'!
-initializeWith: aDictionary 
-	debits := aDictionary.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'EverythingIsOkMerchantProcesor class' category: #TusLibros!
-EverythingIsOkMerchantProcesor class
-	instanceVariableNames: ''!
-
-!EverythingIsOkMerchantProcesor class methodsFor: 'as yet unclassified' stamp: 'm 6/11/2018 19:53:51'!
-newWith: aDictionary 
-	^self new initializeWith: aDictionary.! !
-
-
-!classDefinition: #NotEnoughCashMerchantProcesor category: #TusLibros!
-MerchantProcesorInterface subclass: #NotEnoughCashMerchantProcesor
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
-
-!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:22:44'!
+!MerchantProcesorInterfaceMock methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:09:38'!
 debit: anAmount from: aCreditCard 
 	| creditCardDebits |
 	creditCardDebits := debits at: aCreditCard ifAbsentPut: [ OrderedCollection new ].
 	creditCardDebits add: anAmount .
-	self error: self class notEnoughCashMessageError.! !
+	self raiseException.
+"	self error: self class notEnoughCashMessageError."! !
 
-!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:11:45'!
+!MerchantProcesorInterfaceMock methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:06:56'!
 debitsOf: aCreditCard 
 	| debitsAmounts |
 	debitsAmounts := debits at: aCreditCard ifAbsent: [ OrderedCollection new].
 	^debitsAmounts.! !
 
-!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:11:56'!
+!MerchantProcesorInterfaceMock methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:05:35'!
 initializeWith: aDictionary 
 	debits := aDictionary.! !
 
+!MerchantProcesorInterfaceMock methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:09:55'!
+raiseException
+	self subclassResponsibility.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NotEnoughCashMerchantProcesor class' category: #TusLibros!
-NotEnoughCashMerchantProcesor class
+!classDefinition: 'MerchantProcesorInterfaceMock class' category: #TusLibros!
+MerchantProcesorInterfaceMock class
 	instanceVariableNames: ''!
 
-!NotEnoughCashMerchantProcesor class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:12:09'!
+!MerchantProcesorInterfaceMock class methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:00:11'!
+disconnectedMerchantProcesorMessageError
+	^'MP desconectado'.! !
+
+!MerchantProcesorInterfaceMock class methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:12:19'!
 newWith: aDictionary 
 	^self new initializeWith: aDictionary.! !
+
+!MerchantProcesorInterfaceMock class methodsFor: 'as yet unclassified' stamp: 'm 6/13/2018 18:32:19'!
+notEnoughCashMessageError
+	^'Rechazado por no tener dinero'.! !
+
+
+!classDefinition: #DisconnectedMerchantProcesor category: #TusLibros!
+MerchantProcesorInterfaceMock subclass: #DisconnectedMerchantProcesor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!DisconnectedMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:10:50'!
+raiseException
+	self error: self class disconnectedMerchantProcesorMessageError.! !
+
+
+!classDefinition: #EverythingIsOkMerchantProcesor category: #TusLibros!
+MerchantProcesorInterfaceMock subclass: #EverythingIsOkMerchantProcesor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!EverythingIsOkMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:10:40'!
+raiseException
+	! !
+
+
+!classDefinition: #NotEnoughCashMerchantProcesor category: #TusLibros!
+MerchantProcesorInterfaceMock subclass: #NotEnoughCashMerchantProcesor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!NotEnoughCashMerchantProcesor methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 02:10:22'!
+raiseException
+	self error: self class notEnoughCashMessageError.! !
 
 
 !classDefinition: #MonthOfYear category: #TusLibros!
