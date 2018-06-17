@@ -248,23 +248,35 @@ debit: anAmount from: aCreditCard
 
 !classDefinition: #RestInterfaceTest category: #TusLibros!
 TestCase subclass: #RestInterfaceTest
-	instanceVariableNames: 'anInvalidPassword aValidPassword aValidClientId anInvalidClientId aSingleClientDicc'
+	instanceVariableNames: 'anInvalidPassword aValidPassword aValidClientId anInvalidClientId aSingleClientDicc isbn1 aCatalog'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 21:06:41'!
+!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 17:00:01'!
 aRestInterface
-	^RestInterface newWithUsers: aSingleClientDicc.! !
+	^RestInterface newWithUsers: aSingleClientDicc catalog: aCatalog.! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 21:05:54'!
+!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 16:44:27'!
+anISBN
+	self shouldBeImplemented.! !
+
+!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 17:07:38'!
 setUp
 	anInvalidPassword := 'unaPassInvalida'.
 	aValidPassword := 'unaPassValida'.
 	aValidClientId _ 'idCliente'.
 	anInvalidClientId _ 'idCliente2'.
+	
 	aSingleClientDicc _ Dictionary new.
-	aSingleClientDicc at: aValidClientId put: aValidPassword! !
+	aSingleClientDicc at: aValidClientId put: aValidPassword.
+	
+	isbn1 := '123456789'.
+	
+	aCatalog := Dictionary new.
+	aCatalog at: isbn1 put: 10.
+
+	! !
 
 !RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 20:54:57'!
 test01
@@ -308,6 +320,19 @@ test03
 		
 		
 		! !
+
+!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 16:46:56'!
+test04
+	| aRestInterface idCart aBookList aQuantity |
+	
+	aRestInterface _ self aRestInterface.
+	idCart _ aRestInterface
+		createCart: aValidClientId 
+		withPass: aValidPassword .
+	aQuantity := 1.
+	aRestInterface addToCart: idCart book: isbn1 quantity: aQuantity.
+	aBookList := aRestInterface listCart: idCart.
+	self deny: aBookList isEmpty.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -515,12 +540,50 @@ expiringOn: aMonth
 	^self new initializeExpiringOn: aMonth! !
 
 
+!classDefinition: #ListCart category: #TusLibros!
+Object subclass: #ListCart
+	instanceVariableNames: 'itemsOccurences'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!ListCart methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 23:41:15'!
+initializeFrom: aCart with: aCatalog 
+	itemsOccurences := Dictionary new.
+	aCatalog keys do: [ :anIsbn | itemsOccurences at: anIsbn put: (aCart occurrencesOf: anIsbn)]
+	! !
+
+!ListCart methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 23:42:27'!
+isEmpty
+	^itemsOccurences values allSatisfy: [ :anOccurence | anOccurence = 0].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ListCart class' category: #TusLibros!
+ListCart class
+	instanceVariableNames: ''!
+
+!ListCart class methodsFor: 'instance creation' stamp: 'm 6/16/2018 23:36:29'!
+from: aCart 
+	self shouldBeImplemented.! !
+
+!ListCart class methodsFor: 'instance creation' stamp: 'm 6/16/2018 23:39:21'!
+from: aCart with: aCatalog 
+	^self new initializeFrom: aCart with: aCatalog .! !
+
+
 !classDefinition: #RestInterface category: #TusLibros!
 Object subclass: #RestInterface
 	instanceVariableNames: 'catalog cartList clientList'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 16:50:58'!
+addToCart: idCart book: anIsbn quantity: aQuantity 
+	| cart |
+	cart := cartList at: idCart.
+	cart add: aQuantity of: anIsbn.! !
 
 !RestInterface methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 21:19:02'!
 createCart: aClientId withPass: aPass 
@@ -533,18 +596,24 @@ createCart: aClientId withPass: aPass
 	cartList add: aCart.
 	^cartList size.! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 21:03:47'!
-initialize
+!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 16:54:11'!
+initializeWithUsers: aClientList 
+	clientList _ aClientList.
 	cartList := OrderedCollection new.
 	catalog := Dictionary new. ! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'AM 6/14/2018 21:09:09'!
-initializeWithUsers: aClientList 
-	clientList _ aClientList.! !
+!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 17:02:59'!
+initializeWithUsers: aUserList catalog: aCatalog 
+	clientList _ aUserList.
+	cartList := OrderedCollection new.
+	catalog := aCatalog.! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/14/2018 20:31:00'!
-listCart: aCartId
-	^OrderedCollection new.! !
+!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 23:38:27'!
+listCart: aCartId	| cart |
+	
+	cart := cartList at: aCartId.
+	^ListCart from: cart with: catalog.
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -564,6 +633,11 @@ invalidPasswordErrorMessage
 !RestInterface class methodsFor: 'error messages' stamp: 'AM 6/14/2018 21:20:10'!
 invalidUserErrorMessage
 	^'Usuario Invalido'.! !
+
+
+!RestInterface class methodsFor: 'instance creation' stamp: 'm 6/16/2018 17:01:10'!
+newWithUsers: aUserList catalog: aCatalog 
+	^self new initializeWithUsers: aUserList catalog: aCatalog.! !
 
 
 !classDefinition: #Sale category: #TusLibros!
