@@ -338,7 +338,7 @@ test05CantAddABookAfter30Min
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidCartErrorMessage ].! !
 
-!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:57:15'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 16:15:46'!
 test06CanCheckOutCart
 	"	debitBehavior _ "
 	| aRestInterface idCart aQuantity aListPurchased |
@@ -353,7 +353,7 @@ test06CanCheckOutCart
 		quantity: aQuantity.
 	aRestInterface
 		checkout: idCart
-		with: aValidCC.
+		with: aValidCC .
 	aListPurchased _ aRestInterface
 		listPurchases: aValidClientId
 		withPass: aValidPassword.
@@ -770,7 +770,7 @@ withItems: items andSales: paidSales
 
 !classDefinition: #RestInterface category: #TusLibros!
 Object subclass: #RestInterface
-	instanceVariableNames: 'catalog clientList timer cartTimestampList purchasedItems merchantProcessor nextIdCart purchasedSales nextIdTranssaction sessions'
+	instanceVariableNames: 'catalog clientList timer purchasedItems merchantProcessor nextIdCart purchasedSales nextIdTranssaction sessions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
