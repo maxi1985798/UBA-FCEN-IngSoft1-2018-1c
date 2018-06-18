@@ -248,52 +248,12 @@ debit: anAmount from: aCreditCard
 
 !classDefinition: #RestInterfaceTest category: #TusLibros!
 TestCase subclass: #RestInterfaceTest
-	instanceVariableNames: 'anInvalidPassword aValidPassword aValidClientId anInvalidClientId aSingleClientDicc isbn1 aCatalog aTimer aValidCcn aValidCced aValidCco aValidCC anInvalidIdCart isbn2 debitBehavior'
+	instanceVariableNames: 'anInvalidPassword aValidPassword aValidClientId anInvalidClientId aSingleClientDicc isbn1 aCatalog aTimer aValidCcn aValidCced aValidCco aValidCC anInvalidIdCart isbn2 debitBehavior anExpiredCC'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 03:26:43'!
-aRestInterface
-	^RestInterface newWithUsers: aSingleClientDicc catalog: aCatalog withTimer: aTimer withMerchanProcessor: self.! !
-
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 16:44:27'!
-anISBN
-	self shouldBeImplemented.! !
-
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 03:24:55'!
-debit: anAmount from: aCreditCard 
-
-	^debitBehavior value: anAmount value: aCreditCard ! !
-
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 03:26:00'!
-setUp
-	anInvalidPassword := 'unaPassInvalida'.
-	aValidPassword := 'unaPassValida'.
-	aValidClientId _ 'idCliente'.
-	anInvalidClientId _ 'idCliente2'.
-	
-	aSingleClientDicc _ Dictionary new.
-	aSingleClientDicc at: aValidClientId put: aValidPassword.
-	
-	isbn1 := '123456789'.
-	isbn2 := '987654321'.
-	
-	aCatalog := Dictionary new.
-	aCatalog at: isbn1 put: 10.
-	aCatalog at: isbn2 put: 45.
-	
-	aTimer _ TimerStub new.
-	
-	aValidCcn _ '4444 333 22'.
-	
-	aValidCC _ StoreTestObjectsFactory new notExpiredCreditCard.
-	
-	anInvalidIdCart _ 9999999.
-	
-	debitBehavior := [ :anAmount :aCreditCard | ]! !
-
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:47:19'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:47:19'!
 test01cartShouldBeEmptyAfterCreation
 	| aRestInterface idCart aBookList |
 	aRestInterface _ self aRestInterface.
@@ -303,7 +263,7 @@ test01cartShouldBeEmptyAfterCreation
 	aBookList _ aRestInterface listCart: idCart.
 	self assert: aBookList isEmpty.! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:48:13'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:48:13'!
 test01_01CantListWithAnInvalidIdCart
 	| aRestInterface |
 	aRestInterface _ self aRestInterface.
@@ -316,8 +276,8 @@ test01_01CantListWithAnInvalidIdCart
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidIdCartErrorMessage ].! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:49:22'!
-test02CanCreateCartWithAnInvalidPassword
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:07:07'!
+test02CantCreateCartWithAnInvalidPassword
 	| aRestInterface |
 	aRestInterface _ self aRestInterface.
 	self
@@ -329,7 +289,7 @@ test02CanCreateCartWithAnInvalidPassword
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidPasswordErrorMessage ].! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:50:03'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:50:03'!
 test03UserShouldExist
 	| aRestInterface |
 	aRestInterface _ self aRestInterface.
@@ -342,7 +302,7 @@ test03UserShouldExist
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidUserErrorMessage ].! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:51:24'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:51:24'!
 test04CartShouldntBeEmptyAfterAddingABook
 	| aRestInterface idCart aBookList aQuantity |
 	aRestInterface _ self aRestInterface.
@@ -359,7 +319,7 @@ test04CartShouldntBeEmptyAfterAddingABook
 	self assert: (aBookList occurrencesOf: isbn1) = 1.
 	self assert: (aBookList occurrencesOf: isbn2) = 0.! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:52:48'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:52:48'!
 test05CantAddABookAfter30Min
 	| aRestInterface idCart aQuantity |
 	aRestInterface _ self aRestInterface.
@@ -378,7 +338,7 @@ test05CantAddABookAfter30Min
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidCartErrorMessage ].! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:57:07'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:57:15'!
 test06CanCheckOutCart
 	"	debitBehavior _ "
 	| aRestInterface idCart aQuantity aListPurchased |
@@ -400,7 +360,7 @@ test06CanCheckOutCart
 	self assert: (aListPurchased occurrencesOf: isbn1) = 1.
 	self assert: (aListPurchased total) = 10.! !
 
-!RestInterfaceTest methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 11:59:11'!
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 11:59:11'!
 test07CantCheckOutCartAfter30Min
 	"	debitBehavior _ "
 	| aRestInterface idCart aQuantity |
@@ -422,6 +382,114 @@ test07CantCheckOutCartAfter30Min
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = RestInterface invalidCartErrorMessage ].! !
+
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:03:51'!
+test08CantListCartAfter30Min
+	"	debitBehavior _ "
+	| aRestInterface idCart aQuantity |
+	aRestInterface _ self aRestInterface.
+	idCart _ aRestInterface
+		createCart: aValidClientId
+		withPass: aValidPassword.
+	aQuantity _ 1.
+	aRestInterface
+		addToCart: idCart
+		book: isbn1
+		quantity: aQuantity.
+	aTimer add30Minutes.
+	self
+		should: [ aRestInterface listCart: idCart ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = RestInterface invalidCartErrorMessage ].! !
+
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:26:27'!
+test09CantCheckOutCartWhenMPFailsWithNotEnoughMoney
+	"	debitBehavior _ "
+	| aRestInterface idCart aQuantity |
+	aRestInterface _ self aRestInterface.
+	idCart _ aRestInterface
+		createCart: aValidClientId
+		withPass: aValidPassword.
+	aQuantity _ 1.
+	aRestInterface
+		addToCart: idCart
+		book: isbn1
+		quantity: aQuantity.
+	debitBehavior _ [ :anAmount :aCreditCard |
+	self error: Cashier creditCardHasNoCreditErrorMessage ].
+	self
+		should: [
+			aRestInterface
+				checkout: idCart
+				with: aValidCC ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = RestInterface notEnoughMoneyErrorMessage ].! !
+
+!RestInterfaceTest methodsFor: 'tests' stamp: 'm 6/18/2018 15:27:02'!
+test10CantCheckOutCartWithAnExpiredCC
+	"	debitBehavior _ "
+	| aRestInterface idCart aQuantity |
+	aRestInterface _ self aRestInterface.
+	idCart _ aRestInterface
+		createCart: aValidClientId
+		withPass: aValidPassword.
+	aQuantity _ 1.
+	aRestInterface
+		addToCart: idCart
+		book: isbn1
+		quantity: aQuantity.
+	self
+		should: [
+			aRestInterface
+				checkout: idCart
+				with: anExpiredCC ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = Cashier canNotChargeAnExpiredCreditCardErrorMessage ].! !
+
+
+!RestInterfaceTest methodsFor: 'test support' stamp: 'm 6/18/2018 03:26:43'!
+aRestInterface
+	^RestInterface newWithUsers: aSingleClientDicc catalog: aCatalog withTimer: aTimer withMerchanProcessor: self.! !
+
+!RestInterfaceTest methodsFor: 'test support' stamp: 'm 6/16/2018 16:44:27'!
+anISBN
+	self shouldBeImplemented.! !
+
+!RestInterfaceTest methodsFor: 'test support' stamp: 'm 6/18/2018 03:24:55'!
+debit: anAmount from: aCreditCard 
+
+	^debitBehavior value: anAmount value: aCreditCard ! !
+
+!RestInterfaceTest methodsFor: 'test support' stamp: 'm 6/18/2018 15:22:52'!
+setUp
+	anInvalidPassword := 'unaPassInvalida'.
+	aValidPassword := 'unaPassValida'.
+	aValidClientId _ 'idCliente'.
+	anInvalidClientId _ 'idCliente2'.
+	
+	aSingleClientDicc _ Dictionary new.
+	aSingleClientDicc at: aValidClientId put: aValidPassword.
+	
+	isbn1 := '123456789'.
+	isbn2 := '987654321'.
+	
+	aCatalog := Dictionary new.
+	aCatalog at: isbn1 put: 10.
+	aCatalog at: isbn2 put: 45.
+	
+	aTimer _ TimerStub new.
+	
+	aValidCcn _ '4444 333 22'.
+	
+	aValidCC _ StoreTestObjectsFactory new notExpiredCreditCard.
+	anExpiredCC _ StoreTestObjectsFactory new expiredCreditCard.
+	
+	anInvalidIdCart _ 9999999.
+	
+	debitBehavior := [ :anAmount :aCreditCard | ]! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -497,7 +565,7 @@ add: aQuantity of: anItem
 	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
 
 
-!Cart methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:23:57'!
+!Cart methodsFor: 'accesing' stamp: 'm 6/18/2018 12:23:57'!
 itemsDo: aBlockClosure 
 	items do: aBlockClosure.! !
 
@@ -641,20 +709,21 @@ Object subclass: #ListCart
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!ListCart methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:23:30'!
-initializeFrom: aCart with: aCatalog 
+!ListCart methodsFor: 'accesing' stamp: 'm 6/16/2018 23:42:27'!
+isEmpty
+	^itemsOccurences values allSatisfy: [ :anOccurence | anOccurence = 0].! !
+
+!ListCart methodsFor: 'accesing' stamp: 'm 6/18/2018 00:41:43'!
+occurrencesOf: anIsbn 
+	^itemsOccurences at: anIsbn ifAbsent: [^0].! !
+
+
+!ListCart methodsFor: 'initialization' stamp: 'm 6/18/2018 15:47:25'!
+initializeFrom: aCart 
 	itemsOccurences := Dictionary new.
 	aCart itemsDo: [ :anItem | itemsOccurences at: anItem put: (aCart occurrencesOf: anItem)].
 
 	! !
-
-!ListCart methodsFor: 'as yet unclassified' stamp: 'm 6/16/2018 23:42:27'!
-isEmpty
-	^itemsOccurences values allSatisfy: [ :anOccurence | anOccurence = 0].! !
-
-!ListCart methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 00:41:43'!
-occurrencesOf: anIsbn 
-	^itemsOccurences at: anIsbn ifAbsent: [^0].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -662,13 +731,9 @@ occurrencesOf: anIsbn
 ListCart class
 	instanceVariableNames: ''!
 
-!ListCart class methodsFor: 'instance creation' stamp: 'm 6/16/2018 23:36:29'!
+!ListCart class methodsFor: 'instance creation' stamp: 'm 6/18/2018 15:47:57'!
 from: aCart 
-	self shouldBeImplemented.! !
-
-!ListCart class methodsFor: 'instance creation' stamp: 'm 6/16/2018 23:39:21'!
-from: aCart with: aCatalog 
-	^self new initializeFrom: aCart with: aCatalog .! !
+	^self new initializeFrom: aCart .! !
 
 
 !classDefinition: #ListPurchases category: #TusLibros!
@@ -678,18 +743,19 @@ Object subclass: #ListPurchases
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!ListPurchases methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:51:43'!
-initializeWithItems: items andSales: paidSales 
-	itemsPurchased := items.
-	sales _ paidSales.! !
-
-!ListPurchases methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:53:54'!
+!ListPurchases methodsFor: 'accesing' stamp: 'm 6/18/2018 12:53:54'!
 occurrencesOf: anIsbn 
 	^itemsPurchased occurrencesOf: anIsbn .! !
 
-!ListPurchases methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:56:51'!
+!ListPurchases methodsFor: 'accesing' stamp: 'm 6/18/2018 12:56:51'!
 total
 	^sales inject: 0 into: [ :currentSum :aSale | currentSum + aSale total ].! !
+
+
+!ListPurchases methodsFor: 'initialization' stamp: 'm 6/18/2018 12:51:43'!
+initializeWithItems: items andSales: paidSales 
+	itemsPurchased := items.
+	sales _ paidSales.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -697,7 +763,7 @@ total
 ListPurchases class
 	instanceVariableNames: ''!
 
-!ListPurchases class methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:50:32'!
+!ListPurchases class methodsFor: 'instance creation' stamp: 'm 6/18/2018 12:50:32'!
 withItems: items andSales: paidSales 
 	^self new initializeWithItems: items andSales: paidSales .! !
 
@@ -709,7 +775,26 @@ Object subclass: #RestInterface
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:55:05'!
+!RestInterface methodsFor: 'private' stamp: 'm 6/18/2018 14:55:05'!
+getClientIdForCart: aCartId
+	^ sessions keysAndValuesDo: [ :aClientId :aClientSession |
+		aClientSession id = aCartId ifTrue: [ ^ aClientId ]].! !
+
+
+!RestInterface methodsFor: 'initialization' stamp: 'm 6/18/2018 14:53:11'!
+initializeWithUsers: aUserList catalog: aCatalog withTimer: aTimer withMerchanProcessor: aMerchantProcessor
+	clientList _ aUserList.
+	catalog _ aCatalog.
+	timer _ aTimer.
+	purchasedItems _ Dictionary new.
+	merchantProcessor _ aMerchantProcessor.
+	purchasedSales _ Dictionary new.
+	sessions _ Dictionary new.
+	nextIdTranssaction _ 1.
+	nextIdCart _ 1.! !
+
+
+!RestInterface methodsFor: 'product owner requirements' stamp: 'm 6/18/2018 14:55:05'!
 addToCart: idCart book: anIsbn quantity: aQuantity
 	| cart aClientId aClientSession |
 	aClientId _ self getClientIdForCart: idCart.
@@ -721,7 +806,7 @@ addToCart: idCart book: anIsbn quantity: aQuantity
 		add: aQuantity
 		of: anIsbn.! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:55:05'!
+!RestInterface methodsFor: 'product owner requirements' stamp: 'm 6/18/2018 15:16:42'!
 checkout: anIdCart with: aCreditCard
 	| cart aCashier clientId clientPurchasedItems salesForClient aIdTranssaction clientSession |
 	clientId _ self getClientIdForCart: anIdCart.
@@ -739,7 +824,13 @@ checkout: anIdCart with: aCreditCard
 		throught: merchantProcessor
 		on: timer now
 		registeringOn: salesForClient.
-	aCashier checkOut.
+	
+	[aCashier checkOut] 
+		on: Error 
+		do: [
+			sessions removeKey: clientId.
+			self error: self class notEnoughMoneyErrorMessage ].
+	
 	sessions removeKey: clientId.
 	"cartList removeKey: anIdCart ."
 	"openedCarts removeKey: anIdCart ."
@@ -752,7 +843,7 @@ checkout: anIdCart with: aCreditCard
 	nextIdTranssaction _ nextIdTranssaction + 1.
 	^ aIdTranssaction.! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:54:32'!
+!RestInterface methodsFor: 'product owner requirements' stamp: 'm 6/18/2018 14:54:32'!
 createCart: aClientId withPass: aPass 
 	
 	| aCart cartId |
@@ -765,32 +856,16 @@ createCart: aClientId withPass: aPass
 	sessions at: aClientId put: (Session id: cartId cart: aCart timer: timer).
 	^cartId.! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:55:05'!
-getClientIdForCart: aCartId
-	^ sessions keysAndValuesDo: [ :aClientId :aClientSession |
-		aClientSession id = aCartId ifTrue: [ ^ aClientId ]].! !
-
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:53:11'!
-initializeWithUsers: aUserList catalog: aCatalog withTimer: aTimer withMerchanProcessor: aMerchantProcessor
-	clientList _ aUserList.
-	catalog _ aCatalog.
-	timer _ aTimer.
-	purchasedItems _ Dictionary new.
-	merchantProcessor _ aMerchantProcessor.
-	purchasedSales _ Dictionary new.
-	sessions _ Dictionary new.
-	nextIdTranssaction _ 1.
-	nextIdCart _ 1.! !
-
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:54:15'!
+!RestInterface methodsFor: 'product owner requirements' stamp: 'm 6/18/2018 15:48:17'!
 listCart: aCartId	| cart aClientSession |
 	
 	aClientSession := sessions values detect: [ :aSession | aSession id = aCartId ] ifNone: [ self error: self class invalidIdCartErrorMessage ].
+	aClientSession updateTimeStamp.
 	cart _ aClientSession cart.
-	^ListCart from: cart with: catalog.
+	^ListCart from: cart .
 ! !
 
-!RestInterface methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:49:22'!
+!RestInterface methodsFor: 'product owner requirements' stamp: 'm 6/18/2018 12:49:22'!
 listPurchases: aClienId withPass: aPass 
 	^ListPurchases withItems: (purchasedItems at: aClienId) andSales: (purchasedSales at: aClienId).! !
 
@@ -800,7 +875,7 @@ listPurchases: aClienId withPass: aPass
 RestInterface class
 	instanceVariableNames: ''!
 
-!RestInterface class methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 03:12:44'!
+!RestInterface class methodsFor: 'instance creation' stamp: 'm 6/18/2018 03:12:44'!
 newWithUsers: aUserList catalog: aCatalog withTimer: aTimer withMerchanProcessor: aMerchanProcessor
 	^ self new
 		initializeWithUsers: aUserList
@@ -825,6 +900,10 @@ invalidPasswordErrorMessage
 invalidUserErrorMessage
 	^'Usuario Invalido'.! !
 
+!RestInterface class methodsFor: 'error messages' stamp: 'm 6/18/2018 15:16:28'!
+notEnoughMoneyErrorMessage
+	^'no hay suficiente dinero'.! !
+
 
 !classDefinition: #Sale category: #TusLibros!
 Object subclass: #Sale
@@ -833,18 +912,13 @@ Object subclass: #Sale
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Sale methodsFor: 'total' stamp: 'm 6/18/2018 11:04:49'!
-occurrencesOf: anItem
-	^ total! !
-
 !Sale methodsFor: 'total' stamp: 'HernanWilkinson 6/17/2013 18:48'!
 total
 	
 	^ total! !
 
 
-
-!Sale methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:57:59'!
+!Sale methodsFor: 'initialization' stamp: 'm 6/18/2018 12:57:59'!
 initializeTotal: aTotal
 	total := aTotal.! !
 
@@ -854,36 +928,37 @@ initializeTotal: aTotal
 Sale class
 	instanceVariableNames: ''!
 
-
-!Sale class methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 12:57:43'!
+!Sale class methodsFor: 'instance creation' stamp: 'm 6/18/2018 12:57:43'!
 of: aTotal
 	^self new initializeTotal: aTotal.! !
 
 
 !classDefinition: #Session category: #TusLibros!
 Object subclass: #Session
-	instanceVariableNames: 'cartId id cart timer timestampLastAction'
+	instanceVariableNames: 'id cart timer timestampLastAction'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Session methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 13:31:17'!
-cart
-	
-	^cart! !
-
-!Session methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 13:31:06'!
-id
-	^id! !
-
-!Session methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 13:18:05'!
+!Session methodsFor: 'initialization' stamp: 'm 6/18/2018 13:18:05'!
 initializeWithId: anId cart: aCart timer: aTimer 
 	id _ anId.
 	cart _ aCart.
 	timer _ aTimer.
 	timestampLastAction _ timer now.! !
 
-!Session methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 14:44:53'!
+
+!Session methodsFor: 'accessing' stamp: 'm 6/18/2018 13:31:17'!
+cart
+	
+	^cart! !
+
+!Session methodsFor: 'accessing' stamp: 'm 6/18/2018 13:31:06'!
+id
+	^id! !
+
+
+!Session methodsFor: 'timestamp update' stamp: 'm 6/18/2018 14:44:53'!
 updateTimeStamp
 	| curentTimeStamp |
 	curentTimeStamp _ timer now.
@@ -896,7 +971,7 @@ updateTimeStamp
 Session class
 	instanceVariableNames: ''!
 
-!Session class methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 13:16:32'!
+!Session class methodsFor: 'instace creation' stamp: 'm 6/18/2018 13:16:32'!
 id: anIdSession cart: aCart timer: aTimer
 	^self new initializeWithId: anIdSession cart: aCart timer: aTimer.! !
 
@@ -967,14 +1042,16 @@ Object subclass: #TimerStub
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!TimerStub methodsFor: 'as yet unclassified' stamp: 'm 6/18/2018 00:24:06'!
-add30Minutes
-	datetime _ datetime + (Duration minutes: 30).! !
-
-!TimerStub methodsFor: 'as yet unclassified' stamp: 'AM 6/17/2018 23:52:05'!
+!TimerStub methodsFor: 'initialization' stamp: 'AM 6/17/2018 23:52:05'!
 initialize
 	datetime _ DateAndTime now.! !
 
-!TimerStub methodsFor: 'as yet unclassified' stamp: 'AM 6/18/2018 00:08:35'!
+
+!TimerStub methodsFor: 'getting timestamp' stamp: 'AM 6/18/2018 00:08:35'!
 now
 	^datetime.! !
+
+
+!TimerStub methodsFor: 'stub messages' stamp: 'm 6/18/2018 00:24:06'!
+add30Minutes
+	datetime _ datetime + (Duration minutes: 30).! !
